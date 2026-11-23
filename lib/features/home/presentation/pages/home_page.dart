@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 
 import '../../../../core/widgets/common_container.dart';
@@ -13,7 +15,12 @@ class HomePage extends StatelessWidget {
         child: Padding(
           padding: const EdgeInsets.fromLTRB(24, 12, 24, 24),
           child: Column(
-            children: [const SizedBox(height: 10), const _CombinedTopCard()],
+            children: [
+              const SizedBox(height: 10),
+              const _CombinedTopCard(),
+              const SizedBox(height: 16),
+              const _FeatureCards(),
+            ],
           ),
         ),
       ),
@@ -81,8 +88,64 @@ class _TitleCard extends StatelessWidget {
   }
 }
 
-class _WeatherHeader extends StatelessWidget {
+class _WeatherHeader extends StatefulWidget {
   const _WeatherHeader();
+
+  @override
+  State<_WeatherHeader> createState() => _WeatherHeaderState();
+}
+
+class _WeatherHeaderState extends State<_WeatherHeader> {
+  late DateTime _now;
+  Timer? _timer;
+
+  @override
+  void initState() {
+    super.initState();
+    _now = DateTime.now();
+    _timer = Timer.periodic(const Duration(seconds: 1), (_) {
+      if (mounted) {
+        setState(() {
+          _now = DateTime.now();
+        });
+      }
+    });
+  }
+
+  @override
+  void dispose() {
+    _timer?.cancel();
+    super.dispose();
+  }
+
+  String get _date {
+    const months = [
+      'Jan',
+      'Feb',
+      'Mar',
+      'Apr',
+      'May',
+      'Jun',
+      'Jul',
+      'Aug',
+      'Sep',
+      'Oct',
+      'Nov',
+      'Dec',
+    ];
+    final day = _now.day.toString().padLeft(2, '0');
+    return '$day-${months[_now.month - 1]}-${_now.year}';
+  }
+
+  String get _time {
+    final hour = _now.hour == 0
+        ? 12
+        : (_now.hour > 12 ? _now.hour - 12 : _now.hour);
+    final minute = _now.minute.toString().padLeft(2, '0');
+    final second = _now.second.toString().padLeft(2, '0');
+    final period = _now.hour >= 12 ? 'PM' : 'AM';
+    return '$hour:$minute:$second $period';
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -106,7 +169,7 @@ class _WeatherHeader extends StatelessWidget {
             ),
           ),
           const SizedBox(width: 8),
-          const Expanded(
+          Expanded(
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -123,11 +186,11 @@ class _WeatherHeader extends StatelessWidget {
                 ),
                 SizedBox(height: 3),
                 Text(
-                  '23-Nov-2026',
+                  _date,
                   style: TextStyle(color: Color(0xFF777777), fontSize: 11),
                 ),
                 Text(
-                  '2:12:56 PM',
+                  _time,
                   style: TextStyle(color: Color(0xFF777777), fontSize: 10),
                 ),
               ],
@@ -228,6 +291,73 @@ class _CompanyCard extends StatelessWidget {
                 height: 1.2,
                 fontFamily: 'serif',
               ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _FeatureCards extends StatelessWidget {
+  const _FeatureCards();
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: const [
+        Expanded(
+          child: _FeatureCard(
+            iconAsset: 'assets/live_data_monitoring.png',
+            label: 'Live data Monitoring',
+          ),
+        ),
+        SizedBox(width: 8),
+        Expanded(
+          child: _FeatureCard(
+            iconAsset: 'assets/dashboard.png',
+            label: 'Farm Management Dashboard',
+          ),
+        ),
+        SizedBox(width: 8),
+        Expanded(
+          child: _FeatureCard(
+            iconAsset: 'assets/accounting.png',
+            label: 'Farm Accounting',
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+class _FeatureCard extends StatelessWidget {
+  const _FeatureCard({required this.iconAsset, required this.label});
+
+  final String iconAsset;
+  final String label;
+
+  @override
+  Widget build(BuildContext context) {
+    return CommonContainer(
+      height: 116,
+      borderRadius: BorderRadius.circular(12),
+      border: Border.all(color: const Color(0xFFCADAE3), width: 1.2),
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 12),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Image.asset(iconAsset, width: 34, height: 34, fit: BoxFit.contain),
+          const SizedBox(height: 10),
+          Text(
+            label,
+            textAlign: TextAlign.center,
+            style: const TextStyle(
+              color: Color(0xFF111111),
+              fontSize: 12,
+              fontWeight: FontWeight.w600,
+              height: 1.2,
             ),
           ),
         ],
