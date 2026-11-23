@@ -221,9 +221,12 @@ class _CompanyCard extends StatelessWidget {
             child: Text(
               'DMA Technology Limited',
               style: TextStyle(
-                color: Color(0xFF111111),
+                color: Colors.black,
                 fontSize: 18,
-                fontWeight: FontWeight.bold,
+                fontWeight: FontWeight.w700,
+                letterSpacing: 0.3,
+                height: 1.2,
+                fontFamily: 'serif',
               ),
             ),
           ),
