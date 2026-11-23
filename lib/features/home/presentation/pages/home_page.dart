@@ -1,19 +1,22 @@
 import 'package:flutter/material.dart';
 
+import '../../../../core/widgets/common_container.dart';
+
 class HomePage extends StatelessWidget {
   const HomePage({super.key});
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF8FAFC),
+      backgroundColor: const Color(0xFFF1F5F8),
       body: SafeArea(
         child: Padding(
-          padding: const EdgeInsets.fromLTRB(24, 0, 24, 24),
+          padding: const EdgeInsets.fromLTRB(3, 6, 3, 24),
           child: Column(
             children: [
+              const SizedBox(height: 10),
               const _TitleCard(),
-              const SizedBox(height: 18),
+              const SizedBox(height: 10),
               const _WeatherForecastCard(),
             ],
           ),
@@ -28,17 +31,21 @@ class _TitleCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
+    return CommonContainer(
       height: 64,
       width: double.infinity,
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: const Color(0xFFD0D9E2)),
-      ),
+      borderRadius: BorderRadius.circular(12),
+      border: Border.all(color: const Color(0xFFCADAE3), width: 1.2),
       alignment: Alignment.center,
+      boxShadow: const [
+        BoxShadow(
+          color: Color(0x12000000),
+          blurRadius: 2,
+          offset: Offset(0, 1),
+        ),
+      ],
       child: const Text(
-        'DMA Technologies MoreFIsh Services',
+        'DMA Technologies More Fish Services',
         textAlign: TextAlign.center,
         style: TextStyle(
           color: Color(0xFF111111),
@@ -56,21 +63,11 @@ class _WeatherForecastCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
+    return CommonContainer(
       height: 72,
       width: double.infinity,
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: const Color(0xFFE2E7EC)),
-        boxShadow: const [
-          BoxShadow(
-            color: Color(0x18000000),
-            blurRadius: 7,
-            offset: Offset(0, 3),
-          ),
-        ],
-      ),
+      borderRadius: BorderRadius.circular(12),
+      border: Border.all(color: const Color(0xFFCADAE3), width: 1.2),
       padding: const EdgeInsets.symmetric(horizontal: 16),
       child: const Row(
         children: [
