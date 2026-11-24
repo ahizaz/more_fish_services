@@ -1,3 +1,5 @@
+import 'dart:math' as math;
+
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
@@ -21,6 +23,16 @@ class AccountingDashboardPage extends StatefulWidget {
 class _AccountingDashboardPageState extends State<AccountingDashboardPage> {
   static const _teal = Color(0xFF0F6D72);
   static const _ink = Color(0xFF102A43);
+  static const _expenseCategoryColors = <String, Color>{
+    'Feed': Color(0xFF117C75),
+    'Capital': Color(0xFF2D63E8),
+    'Labour': Color(0xFF7C3AED),
+    'Utilities': Color(0xFFF05A00),
+    'Medicine': Color(0xFFD52B76),
+    'Handling': Color(0xFF1595B5),
+    'Maintenance': Color(0xFF55A814),
+    'Other': Color(0xFFD08A00),
+  };
 
   late final FarmDashboardController _controller;
   late final FarmAccountingController _accountingController;
@@ -673,8 +685,19 @@ class _AccountingDashboardPageState extends State<AccountingDashboardPage> {
             query: '',
           );
 
+    final totals = <String, double>{
+      for (final category in FarmAccountingController.categories)
+        category: expenses
+            .where((expense) => expense.category == category)
+            .fold<double>(0, (sum, expense) => sum + expense.amount),
+    };
+    final totalExpense = totals.values.fold<double>(
+      0,
+      (sum, value) => sum + value,
+    );
+
     return Container(
-      height: 186,
+      height: expenses.isEmpty ? 186 : 530,
       width: double.infinity,
       padding: const EdgeInsets.all(18),
       decoration: _panelDecoration(),
@@ -702,21 +725,110 @@ class _AccountingDashboardPageState extends State<AccountingDashboardPage> {
               fontWeight: FontWeight.w600,
             ),
           ),
-          Expanded(
-            child: Center(
-              child: Text(
-                selectedFarm == null
-                    ? 'Select a farm to view expense breakdown.'
-                    : expenses.isEmpty
-                    ? 'No expenses recorded for this farm.'
-                    : '${expenses.length} expense records',
-                textAlign: TextAlign.center,
-                style: const TextStyle(
-                  color: Color(0xFF90A4BE),
-                  fontSize: 13,
-                  fontWeight: FontWeight.w600,
+          if (expenses.isEmpty)
+            Expanded(
+              child: Center(
+                child: Text(
+                  selectedFarm == null
+                      ? 'Select a farm to view expense breakdown.'
+                      : 'No expenses recorded for this farm.',
+                  textAlign: TextAlign.center,
+                  style: const TextStyle(
+                    color: Color(0xFF90A4BE),
+                    fontSize: 13,
+                    fontWeight: FontWeight.w600,
+                  ),
                 ),
               ),
+            )
+          else
+            Expanded(
+              child: Row(
+                children: [
+                  SizedBox(
+                    width: 250,
+                    child: Center(
+                      child: _ExpenseDonut(total: totalExpense, values: totals),
+                    ),
+                  ),
+                  const SizedBox(width: 14),
+                  Expanded(
+                    child: ListView(
+                      padding: EdgeInsets.zero,
+                      children: [
+                        for (final category
+                            in FarmAccountingController.categories)
+                          _expenseBreakdownRow(
+                            category: category,
+                            amount: totals[category] ?? 0,
+                            total: totalExpense,
+                          ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            ),
+        ],
+      ),
+    );
+  }
+
+  Widget _expenseBreakdownRow({
+    required String category,
+    required double amount,
+    required double total,
+  }) {
+    final color = _expenseCategoryColors[category] ?? _teal;
+    final ratio = total == 0 ? 0.0 : amount / total;
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 12),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Container(
+                width: 10,
+                height: 10,
+                decoration: BoxDecoration(color: color, shape: BoxShape.circle),
+              ),
+              const SizedBox(width: 10),
+              Expanded(
+                child: Text(
+                  category.toUpperCase(),
+                  style: const TextStyle(
+                    color: Color(0xFF102A43),
+                    fontSize: 12,
+                    fontWeight: FontWeight.w800,
+                  ),
+                ),
+              ),
+              Text(
+                '৳${amount.toStringAsFixed(0)}',
+                style: const TextStyle(
+                  color: Color(0xFF102A43),
+                  fontSize: 12,
+                  fontWeight: FontWeight.w700,
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 5),
+          ClipRRect(
+            borderRadius: BorderRadius.circular(4),
+            child: LinearProgressIndicator(
+              value: ratio,
+              minHeight: 5,
+              backgroundColor: const Color(0xFFEDF2F7),
+              valueColor: AlwaysStoppedAnimation<Color>(color),
+            ),
+          ),
+          Align(
+            alignment: Alignment.centerRight,
+            child: Text(
+              '${(ratio * 100).toStringAsFixed(1)}%',
+              style: const TextStyle(color: Color(0xFF90A4BE), fontSize: 10),
             ),
           ),
         ],
@@ -737,7 +849,7 @@ class _AccountingDashboardPageState extends State<AccountingDashboardPage> {
     final latestPrice = prices.isEmpty ? null : prices.first;
 
     return Container(
-      height: 200,
+      constraints: const BoxConstraints(minHeight: 240),
       width: double.infinity,
       padding: const EdgeInsets.all(18),
       decoration: _panelDecoration(),
@@ -793,17 +905,66 @@ class _AccountingDashboardPageState extends State<AccountingDashboardPage> {
               ),
             )
           else ...[
-            Text(
-              '${latestPrice.stockingBatch}  •  ৳${latestPrice.pricePerKg.toStringAsFixed(2)} / kg',
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-              style: const TextStyle(
-                color: Color(0xFF506579),
-                fontSize: 12,
-                fontWeight: FontWeight.w600,
+            Container(
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: const Color(0xFFFCFCFD),
+                borderRadius: BorderRadius.circular(10),
+                border: Border.all(color: const Color(0xFFE1E7ED)),
+              ),
+              child: Row(
+                children: [
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          latestPrice.stockingBatch,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: const TextStyle(
+                            color: Color(0xFF102A43),
+                            fontSize: 13,
+                            fontWeight: FontWeight.w800,
+                          ),
+                        ),
+                        const SizedBox(height: 7),
+                        Text(
+                          'Updated ${_formatExpenseDate(latestPrice.date)}',
+                          style: const TextStyle(
+                            color: Color(0xFF7D8FA6),
+                            fontSize: 11,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.end,
+                    children: [
+                      Text(
+                        '৳${latestPrice.pricePerKg.toStringAsFixed(0)}',
+                        style: const TextStyle(
+                          color: Color(0xFF0F6D72),
+                          fontSize: 16,
+                          fontWeight: FontWeight.w800,
+                        ),
+                      ),
+                      const SizedBox(height: 4),
+                      const Text(
+                        'per kg',
+                        style: TextStyle(
+                          color: Color(0xFF7D8FA6),
+                          fontSize: 10,
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
               ),
             ),
-            const Spacer(),
+            const SizedBox(height: 16),
             _overviewActionButton(
               label: 'View Price History →',
               onPressed: () => setState(() => _tab = 2),
@@ -1969,4 +2130,98 @@ class _MetricCard extends StatelessWidget {
       ),
     );
   }
+}
+
+class _ExpenseDonut extends StatelessWidget {
+  const _ExpenseDonut({required this.total, required this.values});
+
+  final double total;
+  final Map<String, double> values;
+
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox(
+      width: 190,
+      height: 190,
+      child: Stack(
+        alignment: Alignment.center,
+        children: [
+          CustomPaint(
+            size: const Size.square(190),
+            painter: _ExpenseDonutPainter(values: values, total: total),
+          ),
+          Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(
+                '৳${total.toStringAsFixed(0)}',
+                style: const TextStyle(
+                  color: Color(0xFF102A43),
+                  fontSize: 16,
+                  fontWeight: FontWeight.w800,
+                ),
+              ),
+              const SizedBox(height: 4),
+              const Text(
+                'Total Expense',
+                style: TextStyle(color: Color(0xFF607690), fontSize: 10),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _ExpenseDonutPainter extends CustomPainter {
+  const _ExpenseDonutPainter({required this.values, required this.total});
+
+  final Map<String, double> values;
+  final double total;
+
+  static const _colors = [
+    Color(0xFF117C75),
+    Color(0xFF2D63E8),
+    Color(0xFF7C3AED),
+    Color(0xFFF05A00),
+    Color(0xFFD52B76),
+    Color(0xFF1595B5),
+    Color(0xFF55A814),
+    Color(0xFFD08A00),
+  ];
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final center = size.center(Offset.zero);
+    final radius = size.shortestSide / 2 - 4;
+    final strokeWidth = 34.0;
+    final paint = Paint()
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = strokeWidth
+      ..strokeCap = StrokeCap.butt;
+    var startAngle = -math.pi / 2;
+    var index = 0;
+    for (final amount in values.values) {
+      if (amount <= 0 || total <= 0) {
+        index++;
+        continue;
+      }
+      paint.color = _colors[index % _colors.length];
+      final sweepAngle = amount / total * math.pi * 2;
+      canvas.drawArc(
+        Rect.fromCircle(center: center, radius: radius),
+        startAngle,
+        sweepAngle,
+        false,
+        paint,
+      );
+      startAngle += sweepAngle;
+      index++;
+    }
+  }
+
+  @override
+  bool shouldRepaint(covariant _ExpenseDonutPainter oldDelegate) =>
+      oldDelegate.total != total || oldDelegate.values != values;
 }
