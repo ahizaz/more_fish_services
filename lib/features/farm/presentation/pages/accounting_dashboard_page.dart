@@ -27,11 +27,17 @@ class _AccountingDashboardPageState extends State<AccountingDashboardPage> {
   final _expenseSearchController = TextEditingController();
   final _sellingPriceSearchController = TextEditingController();
   final _saleSearchController = TextEditingController();
+  final _revenueScrollController = ScrollController();
+  final _metricsScrollController = ScrollController();
 
   String? _farm;
   String? _pond;
   String? _space;
   int _tab = 0;
+  bool _revenueCanScrollLeft = false;
+  bool _revenueCanScrollRight = false;
+  bool _metricsCanScrollLeft = false;
+  bool _metricsCanScrollRight = false;
 
   @override
   void initState() {
@@ -46,6 +52,11 @@ class _AccountingDashboardPageState extends State<AccountingDashboardPage> {
         .where((farm) => farm.id == _controller.selectedFarmId.value)
         .map((farm) => farm.name)
         .firstOrNull;
+    _revenueScrollController.addListener(_updateScrollIndicators);
+    _metricsScrollController.addListener(_updateScrollIndicators);
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _updateScrollIndicators();
+    });
   }
 
   @override
@@ -53,7 +64,102 @@ class _AccountingDashboardPageState extends State<AccountingDashboardPage> {
     _expenseSearchController.dispose();
     _sellingPriceSearchController.dispose();
     _saleSearchController.dispose();
+    _revenueScrollController.dispose();
+    _metricsScrollController.dispose();
     super.dispose();
+  }
+
+  void _updateScrollIndicators() {
+    if (!mounted) return;
+    setState(() {
+      _revenueCanScrollLeft =
+          _revenueScrollController.hasClients &&
+          _revenueScrollController.offset > 0;
+      _revenueCanScrollRight =
+          _revenueScrollController.hasClients &&
+          _revenueScrollController.position.maxScrollExtent > 0 &&
+          _revenueScrollController.offset <
+              _revenueScrollController.position.maxScrollExtent;
+      _metricsCanScrollLeft =
+          _metricsScrollController.hasClients &&
+          _metricsScrollController.offset > 0;
+      _metricsCanScrollRight =
+          _metricsScrollController.hasClients &&
+          _metricsScrollController.position.maxScrollExtent > 0 &&
+          _metricsScrollController.offset <
+              _metricsScrollController.position.maxScrollExtent;
+    });
+  }
+
+  void _scrollCards(ScrollController controller, double distance) {
+    if (!controller.hasClients) return;
+    final target = (controller.offset + distance)
+        .clamp(0.0, controller.position.maxScrollExtent)
+        .toDouble();
+    controller.animateTo(
+      target,
+      duration: const Duration(milliseconds: 280),
+      curve: Curves.easeOut,
+    );
+  }
+
+  Widget _horizontalCardScroller({
+    required ScrollController controller,
+    required Widget child,
+    required bool canScrollLeft,
+    required bool canScrollRight,
+    required double height,
+  }) {
+    return SizedBox(
+      height: height,
+      child: Stack(
+        children: [
+          SingleChildScrollView(
+            controller: controller,
+            scrollDirection: Axis.horizontal,
+            padding: const EdgeInsets.symmetric(horizontal: 4),
+            child: child,
+          ),
+          if (canScrollLeft)
+            Positioned(
+              left: 0,
+              top: (height - 38) / 2,
+              child: _scrollArrow(
+                icon: Icons.chevron_left,
+                onPressed: () => _scrollCards(controller, -260),
+              ),
+            ),
+          if (canScrollRight)
+            Positioned(
+              right: 0,
+              top: (height - 38) / 2,
+              child: _scrollArrow(
+                icon: Icons.chevron_right,
+                onPressed: () => _scrollCards(controller, 260),
+              ),
+            ),
+        ],
+      ),
+    );
+  }
+
+  Widget _scrollArrow({
+    required IconData icon,
+    required VoidCallback onPressed,
+  }) {
+    return Material(
+      color: Colors.white,
+      elevation: 3,
+      shape: const CircleBorder(),
+      child: IconButton(
+        onPressed: onPressed,
+        icon: Icon(icon, size: 22),
+        color: _teal,
+        tooltip: 'Scroll',
+        constraints: const BoxConstraints.tightFor(width: 38, height: 38),
+        padding: EdgeInsets.zero,
+      ),
+    );
   }
 
   @override
@@ -338,32 +444,47 @@ class _AccountingDashboardPageState extends State<AccountingDashboardPage> {
               ),
               const SizedBox(height: 16),
               if (isMobile)
-                const Column(
-                  children: [
-                    _RevenueCard(
-                      title: 'If Sold Today',
-                      value: '—',
-                      subtitle: 'Standing biomass × latest selling price',
-                      icon: Icons.phishing,
-                      iconColor: Color(0xFF4F8FD8),
-                    ),
-                    SizedBox(height: 10),
-                    _RevenueCard(
-                      title: '3-Month Estimate',
-                      value: '—',
-                      subtitle: 'Backend 90-day projection',
-                      icon: Icons.calendar_month,
-                      iconColor: Color(0xFFBC82EA),
-                    ),
-                    SizedBox(height: 10),
-                    _RevenueCard(
-                      title: 'Actual Sales',
-                      value: '—',
-                      subtitle: 'Recorded sale revenue',
-                      icon: Icons.attach_money,
-                      iconColor: Color(0xFFF3A51A),
-                    ),
-                  ],
+                _horizontalCardScroller(
+                  controller: _revenueScrollController,
+                  canScrollLeft: _revenueCanScrollLeft,
+                  canScrollRight: _revenueCanScrollRight,
+                  height: 118,
+                  child: const Row(
+                    children: [
+                      SizedBox(
+                        width: 300,
+                        child: _RevenueCard(
+                          title: 'If Sold Today',
+                          value: '—',
+                          subtitle: 'Standing biomass × latest selling price',
+                          icon: Icons.phishing,
+                          iconColor: Color(0xFF4F8FD8),
+                        ),
+                      ),
+                      SizedBox(width: 12),
+                      SizedBox(
+                        width: 300,
+                        child: _RevenueCard(
+                          title: '3-Month Estimate',
+                          value: '—',
+                          subtitle: 'Backend 90-day projection',
+                          icon: Icons.calendar_month,
+                          iconColor: Color(0xFFBC82EA),
+                        ),
+                      ),
+                      SizedBox(width: 12),
+                      SizedBox(
+                        width: 300,
+                        child: _RevenueCard(
+                          title: 'Actual Sales',
+                          value: '—',
+                          subtitle: 'Recorded sale revenue',
+                          icon: Icons.attach_money,
+                          iconColor: Color(0xFFF3A51A),
+                        ),
+                      ),
+                    ],
+                  ),
                 )
               else
                 const Row(
@@ -399,83 +520,316 @@ class _AccountingDashboardPageState extends State<AccountingDashboardPage> {
                     ),
                   ],
                 ),
-              const SizedBox(height: 16),
-              if (isMobile)
-                const Column(
-                  children: [
-                    _MetricCard(
-                      title: 'Gross Profit',
-                      value: '—',
-                      color: Color(0xFF6998EA),
-                    ),
-                    SizedBox(height: 10),
-                    _MetricCard(
-                      title: 'Total Expense',
-                      value: '—',
-                      color: Color(0xFFFF7D7D),
-                    ),
-                    SizedBox(height: 10),
-                    _MetricCard(
-                      title: 'Net Profit',
-                      value: '—',
-                      color: Color(0xFF1EB37A),
-                    ),
-                    SizedBox(height: 10),
-                    _MetricCard(
-                      title: 'BCR',
-                      value: '—',
-                      color: Color(0xFFEF8C3A),
-                    ),
-                  ],
-                )
-              else
-                const Row(
-                  children: [
-                    Expanded(
-                      child: _MetricCard(
-                        title: 'Gross Profit',
-                        value: '—',
-                        color: Color(0xFF6998EA),
-                      ),
-                    ),
-                    SizedBox(width: 10),
-                    Expanded(
-                      child: _MetricCard(
-                        title: 'Total Expense',
-                        value: '—',
-                        color: Color(0xFFFF7D7D),
-                      ),
-                    ),
-                    SizedBox(width: 10),
-                    Expanded(
-                      child: _MetricCard(
-                        title: 'Net Profit',
-                        value: '—',
-                        color: Color(0xFF1EB37A),
-                      ),
-                    ),
-                    SizedBox(width: 10),
-                    Expanded(
-                      child: _MetricCard(
-                        title: 'BCR',
-                        value: '—',
-                        color: Color(0xFFEF8C3A),
-                      ),
-                    ),
-                    SizedBox(width: 10),
-                    Expanded(
-                      child: _MetricCard(
-                        title: 'ROI',
-                        value: '—',
-                        color: Color(0xFFE872B7),
-                      ),
-                    ),
-                  ],
-                ),
             ],
           ),
         ),
+        const SizedBox(height: 18),
+        if (isMobile)
+          _horizontalCardScroller(
+            controller: _metricsScrollController,
+            canScrollLeft: _metricsCanScrollLeft,
+            canScrollRight: _metricsCanScrollRight,
+            height: 110,
+            child: const Row(
+              children: [
+                SizedBox(
+                  width: 210,
+                  child: _MetricCard(
+                    title: 'Gross Profit',
+                    value: '—',
+                    color: Color(0xFF6998EA),
+                  ),
+                ),
+                SizedBox(width: 10),
+                SizedBox(
+                  width: 210,
+                  child: _MetricCard(
+                    title: 'Total Expense',
+                    value: '—',
+                    color: Color(0xFFFF7D7D),
+                  ),
+                ),
+                SizedBox(width: 10),
+                SizedBox(
+                  width: 210,
+                  child: _MetricCard(
+                    title: 'Net Profit',
+                    value: '—',
+                    color: Color(0xFF1EB37A),
+                  ),
+                ),
+                SizedBox(width: 10),
+                SizedBox(
+                  width: 210,
+                  child: _MetricCard(
+                    title: 'BCR',
+                    value: '—',
+                    color: Color(0xFFEF8C3A),
+                  ),
+                ),
+                SizedBox(width: 10),
+                SizedBox(
+                  width: 210,
+                  child: _MetricCard(
+                    title: 'ROI',
+                    value: '—',
+                    color: Color(0xFFE872B7),
+                  ),
+                ),
+                SizedBox(width: 10),
+                SizedBox(
+                  width: 210,
+                  child: _MetricCard(
+                    title: 'Score',
+                    value: '—',
+                    color: Color(0xFFE0B000),
+                  ),
+                ),
+              ],
+            ),
+          )
+        else
+          const Row(
+            children: [
+              Expanded(
+                child: _MetricCard(
+                  title: 'Gross Profit',
+                  value: '—',
+                  color: Color(0xFF6998EA),
+                ),
+              ),
+              SizedBox(width: 10),
+              Expanded(
+                child: _MetricCard(
+                  title: 'Total Expense',
+                  value: '—',
+                  color: Color(0xFFFF7D7D),
+                ),
+              ),
+              SizedBox(width: 10),
+              Expanded(
+                child: _MetricCard(
+                  title: 'Net Profit',
+                  value: '—',
+                  color: Color(0xFF1EB37A),
+                ),
+              ),
+              SizedBox(width: 10),
+              Expanded(
+                child: _MetricCard(
+                  title: 'BCR',
+                  value: '—',
+                  color: Color(0xFFEF8C3A),
+                ),
+              ),
+              SizedBox(width: 10),
+              Expanded(
+                child: _MetricCard(
+                  title: 'ROI',
+                  value: '—',
+                  color: Color(0xFFE872B7),
+                ),
+              ),
+              SizedBox(width: 10),
+              Expanded(
+                child: _MetricCard(
+                  title: 'Score',
+                  value: '—',
+                  color: Color(0xFFE0B000),
+                ),
+              ),
+            ],
+          ),
+        const SizedBox(height: 18),
+        if (isMobile)
+          Column(
+            children: [
+              _buildOverviewExpenseCard(),
+              const SizedBox(height: 14),
+              _buildOverviewSellingPriceCard(),
+            ],
+          )
+        else
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Expanded(child: _buildOverviewExpenseCard()),
+              const SizedBox(width: 18),
+              Expanded(child: _buildOverviewSellingPriceCard()),
+            ],
+          ),
       ],
+    );
+  }
+
+  Widget _buildOverviewExpenseCard() {
+    final selectedFarm = _controller.farms
+        .where((farm) => farm.name == _farm)
+        .firstOrNull;
+    final expenses = selectedFarm == null
+        ? const <FarmExpense>[]
+        : _accountingController.filterExpenses(
+            farmId: selectedFarm.id,
+            query: '',
+          );
+
+    return Container(
+      height: 186,
+      width: double.infinity,
+      padding: const EdgeInsets.all(18),
+      decoration: _panelDecoration(),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Text(
+            'Expense Breakdown',
+            style: TextStyle(
+              color: Color(0xFF102A43),
+              fontSize: 26,
+              fontWeight: FontWeight.w800,
+            ),
+          ),
+          const SizedBox(height: 8),
+          Text(
+            selectedFarm == null
+                ? 'Category-wise expense for Select a farm'
+                : 'Category-wise expense for ${selectedFarm.name}',
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            style: const TextStyle(
+              color: Color(0xFF607690),
+              fontSize: 12,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+          Expanded(
+            child: Center(
+              child: Text(
+                selectedFarm == null
+                    ? 'Select a farm to view expense breakdown.'
+                    : expenses.isEmpty
+                    ? 'No expenses recorded for this farm.'
+                    : '${expenses.length} expense records',
+                textAlign: TextAlign.center,
+                style: const TextStyle(
+                  color: Color(0xFF90A4BE),
+                  fontSize: 13,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildOverviewSellingPriceCard() {
+    final selectedFarm = _controller.farms
+        .where((farm) => farm.name == _farm)
+        .firstOrNull;
+    final prices = selectedFarm == null
+        ? const <FarmSellingPrice>[]
+        : _accountingController.filterSellingPrices(
+            farmId: selectedFarm.id,
+            query: '',
+          );
+    final latestPrice = prices.isEmpty ? null : prices.first;
+
+    return Container(
+      height: 200,
+      width: double.infinity,
+      padding: const EdgeInsets.all(18),
+      decoration: _panelDecoration(),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              const Expanded(
+                child: Text(
+                  'Fish Selling Price',
+                  style: TextStyle(
+                    color: Color(0xFF102A43),
+                    fontSize: 26,
+                    fontWeight: FontWeight.w800,
+                  ),
+                ),
+              ),
+              FilledButton(
+                onPressed: selectedFarm == null
+                    ? null
+                    : _openSellingPriceDialog,
+                style: FilledButton.styleFrom(
+                  backgroundColor: _teal,
+                  padding: const EdgeInsets.symmetric(horizontal: 14),
+                  minimumSize: const Size(0, 38),
+                ),
+                child: const Text('+ Add Price'),
+              ),
+            ],
+          ),
+          const SizedBox(height: 8),
+          const Text(
+            'Latest price for each stocking',
+            style: TextStyle(
+              color: Color(0xFF607690),
+              fontSize: 12,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+          const SizedBox(height: 16),
+          if (latestPrice == null)
+            const Expanded(
+              child: Center(
+                child: Text(
+                  'Select a farm to view selling prices.',
+                  style: TextStyle(
+                    color: Color(0xFF90A4BE),
+                    fontSize: 13,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+              ),
+            )
+          else ...[
+            Text(
+              '${latestPrice.stockingBatch}  •  ৳${latestPrice.pricePerKg.toStringAsFixed(2)} / kg',
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: const TextStyle(
+                color: Color(0xFF506579),
+                fontSize: 12,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+            const Spacer(),
+            _overviewActionButton(
+              label: 'View Price History →',
+              onPressed: () => setState(() => _tab = 2),
+            ),
+          ],
+        ],
+      ),
+    );
+  }
+
+  Widget _overviewActionButton({
+    required String label,
+    required VoidCallback onPressed,
+  }) {
+    return SizedBox(
+      width: double.infinity,
+      height: 38,
+      child: OutlinedButton(
+        onPressed: onPressed,
+        style: OutlinedButton.styleFrom(
+          foregroundColor: const Color(0xFF506579),
+          side: const BorderSide(color: Color(0xFFD1DDE8)),
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+        ),
+        child: Text(label),
+      ),
     );
   }
 
@@ -613,8 +967,9 @@ class _AccountingDashboardPageState extends State<AccountingDashboardPage> {
           else
             LayoutBuilder(
               builder: (context, constraints) {
-                final tableWidth =
-                    constraints.maxWidth < 1040 ? 1040.0 : constraints.maxWidth;
+                final tableWidth = constraints.maxWidth < 1040
+                    ? 1040.0
+                    : constraints.maxWidth;
                 return SingleChildScrollView(
                   scrollDirection: Axis.horizontal,
                   child: SizedBox(
@@ -632,10 +987,7 @@ class _AccountingDashboardPageState extends State<AccountingDashboardPage> {
                       },
                       defaultVerticalAlignment:
                           TableCellVerticalAlignment.middle,
-                      children: [
-                        _salesHeaderRow(),
-                        ...sales.map(_salesRow),
-                      ],
+                      children: [_salesHeaderRow(), ...sales.map(_salesRow)],
                     ),
                   ),
                 );
@@ -724,7 +1076,9 @@ class _AccountingDashboardPageState extends State<AccountingDashboardPage> {
         _expenseCell(_expenseText(sale.weightSold.toString())),
         _expenseCell(_expenseText('${sale.fishCount ?? '—'}')),
         _expenseCell(_expenseText('৳${sale.pricePerKg.toStringAsFixed(0)}')),
-        _expenseCell(_expenseText(sale.buyerName.isEmpty ? '—' : sale.buyerName)),
+        _expenseCell(
+          _expenseText(sale.buyerName.isEmpty ? '—' : sale.buyerName),
+        ),
         _expenseCell(_expenseText('৳${sale.revenue.toStringAsFixed(0)}')),
         _expenseCell(
           Row(
@@ -1344,11 +1698,8 @@ class _AccountingDashboardPageState extends State<AccountingDashboardPage> {
         .toList();
     final result = await showDialog<FarmSale>(
       context: context,
-      builder: (_) => SaleDialog(
-        farmId: selectedFarm.id,
-        batches: batches,
-        sale: sale,
-      ),
+      builder: (_) =>
+          SaleDialog(farmId: selectedFarm.id, batches: batches, sale: sale),
     );
     if (result == null || !mounted) return;
 
