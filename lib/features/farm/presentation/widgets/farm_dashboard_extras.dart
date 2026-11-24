@@ -178,10 +178,7 @@ class _PerformanceCard extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 10),
-          ClipRRect(
-            borderRadius: BorderRadius.circular(20),
-            child: const SizedBox(height: 10, child: _PerformanceGradient()),
-          ),
+          const SizedBox(height: 10, child: _PerformanceGradient()),
           const SizedBox(height: 5),
           const Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -202,17 +199,35 @@ class _PerformanceGradient extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const DecoratedBox(
-      decoration: BoxDecoration(
-        gradient: LinearGradient(
-          colors: [
-            Color(0xFFFF5C69),
-            Color(0xFFFFD40A),
-            Color(0xFF7BCB54),
-            Color(0xFF20A65A),
-          ],
-          stops: [0, 0.48, 0.72, 1],
-        ),
+    return ClipRRect(
+      borderRadius: BorderRadius.circular(20),
+      child: Stack(
+        fit: StackFit.expand,
+        children: [
+          const DecoratedBox(
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                colors: [
+                  Color(0xFFFF6B72),
+                  Color(0xFFFFD42A),
+                  Color(0xFFA8D35A),
+                  Color(0xFF38A96B),
+                ],
+                stops: [0, 0.42, 0.72, 1],
+              ),
+            ),
+          ),
+          const Align(
+            alignment: Alignment.centerRight,
+            child: SizedBox(
+              width: 5,
+              height: 10,
+              child: DecoratedBox(
+                decoration: BoxDecoration(color: Color(0xFF102A43)),
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }
@@ -278,13 +293,17 @@ class _FeedInventoryCard extends StatelessWidget {
           ClipRRect(
             borderRadius: BorderRadius.circular(20),
             child: const SizedBox(
-              height: 9,
+              height: 10,
               child: Row(
                 children: [
                   Expanded(
                     flex: 349,
                     child: DecoratedBox(
-                      decoration: BoxDecoration(color: Color(0xFF2D73DB)),
+                      decoration: BoxDecoration(
+                        gradient: LinearGradient(
+                          colors: [Color(0xFF3F80DF), Color(0xFF5C91E8)],
+                        ),
+                      ),
                     ),
                   ),
                   Expanded(
@@ -292,7 +311,7 @@ class _FeedInventoryCard extends StatelessWidget {
                     child: DecoratedBox(
                       decoration: BoxDecoration(
                         gradient: LinearGradient(
-                          colors: [Color(0xFFFFA91A), Color(0xFFF0CF55)],
+                          colors: [Color(0xFFFFB21D), Color(0xFFF4D45A)],
                         ),
                       ),
                     ),
