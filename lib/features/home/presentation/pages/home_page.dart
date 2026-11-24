@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 
 import '../../../../core/widgets/common_container.dart';
+import '../../../farm/presentation/pages/farm_dashboard_page.dart';
 
 class HomePage extends StatelessWidget {
   const HomePage({super.key});
@@ -340,27 +341,37 @@ class _FeatureCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return CommonContainer(
-      height: 116,
+    return InkWell(
       borderRadius: BorderRadius.circular(12),
-      border: Border.all(color: const Color(0xFFCADAE3), width: 1.2),
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 12),
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Image.asset(iconAsset, width: 34, height: 34, fit: BoxFit.contain),
-          const SizedBox(height: 10),
-          Text(
-            label,
-            textAlign: TextAlign.center,
-            style: const TextStyle(
-              color: Color(0xFF111111),
-              fontSize: 12,
-              fontWeight: FontWeight.w600,
-              height: 1.2,
+      onTap: label == 'Farm Management Dashboard'
+          ? () => Navigator.of(context).push(
+              MaterialPageRoute<void>(
+                builder: (_) => const FarmDashboardPage(),
+              ),
+            )
+          : null,
+      child: CommonContainer(
+        height: 116,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: const Color(0xFFCADAE3), width: 1.2),
+        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 12),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Image.asset(iconAsset, width: 34, height: 34, fit: BoxFit.contain),
+            const SizedBox(height: 10),
+            Text(
+              label,
+              textAlign: TextAlign.center,
+              style: const TextStyle(
+                color: Color(0xFF111111),
+                fontSize: 12,
+                fontWeight: FontWeight.w600,
+                height: 1.2,
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
