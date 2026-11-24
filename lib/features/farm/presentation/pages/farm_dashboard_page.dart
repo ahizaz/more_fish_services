@@ -11,6 +11,7 @@ import '../widgets/farm_dashboard_extras.dart';
 import '../widgets/farm_pond_card.dart';
 import '../widgets/stocking_dialog.dart';
 import '../widgets/weekly_update_dialog.dart';
+import 'accounting_dashboard_page.dart';
 
 class FarmDashboardPage extends StatefulWidget {
   const FarmDashboardPage({super.key});
@@ -116,7 +117,13 @@ class _FarmDashboardPageState extends State<FarmDashboardPage> {
               weeklyUpdateCount: controller.weeklyUpdates.length,
             ),
             const SizedBox(height: 16),
-            const FarmDashboardExtras(),
+            FarmDashboardExtras(
+              onOpenAccounting: () => Navigator.of(context).push(
+                MaterialPageRoute<void>(
+                  builder: (_) => const AccountingDashboardPage(),
+                ),
+              ),
+            ),
             const SizedBox(height: 16),
             if (selectedPonds.isEmpty)
               const FarmEmptyPonds()

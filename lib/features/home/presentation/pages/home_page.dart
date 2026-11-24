@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 
 import '../../../../core/widgets/common_container.dart';
 import '../../../farm/presentation/pages/farm_dashboard_page.dart';
+import '../../../farm/presentation/pages/accounting_dashboard_page.dart';
 
 class HomePage extends StatelessWidget {
   const HomePage({super.key});
@@ -347,6 +348,12 @@ class _FeatureCard extends StatelessWidget {
           ? () => Navigator.of(context).push(
               MaterialPageRoute<void>(
                 builder: (_) => const FarmDashboardPage(),
+              ),
+            )
+          : label == 'Farm Accounting'
+          ? () => Navigator.of(context).push(
+              MaterialPageRoute<void>(
+                builder: (_) => const AccountingDashboardPage(),
               ),
             )
           : null,

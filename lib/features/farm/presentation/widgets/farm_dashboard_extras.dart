@@ -1,24 +1,28 @@
 import 'package:flutter/material.dart';
 
 class FarmDashboardExtras extends StatelessWidget {
-  const FarmDashboardExtras({super.key});
+  const FarmDashboardExtras({super.key, this.onOpenAccounting});
+
+  final VoidCallback? onOpenAccounting;
 
   @override
   Widget build(BuildContext context) {
-    return const Column(
+    return Column(
       children: [
-        _FinancialHubCard(),
-        SizedBox(height: 14),
-        _PerformanceCard(),
-        SizedBox(height: 14),
-        _FeedInventoryCard(),
+        _FinancialHubCard(onPressed: onOpenAccounting),
+        const SizedBox(height: 14),
+        const _PerformanceCard(),
+        const SizedBox(height: 14),
+        const _FeedInventoryCard(),
       ],
     );
   }
 }
 
 class _FinancialHubCard extends StatelessWidget {
-  const _FinancialHubCard();
+  const _FinancialHubCard({this.onPressed});
+
+  final VoidCallback? onPressed;
 
   @override
   Widget build(BuildContext context) {
@@ -88,7 +92,7 @@ class _FinancialHubCard extends StatelessWidget {
             width: double.infinity,
             height: 48,
             child: FilledButton(
-              onPressed: null,
+              onPressed: onPressed,
               style: FilledButton.styleFrom(
                 backgroundColor: const Color(0xFF18214A),
                 disabledBackgroundColor: const Color(0xFF18214A),
