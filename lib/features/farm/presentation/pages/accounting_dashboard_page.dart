@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
+import '../../controllers/farm_accounting_controller.dart';
 import '../../controllers/farm_dashboard_controller.dart';
+import '../../models/farm_expense.dart';
+import '../widgets/expense_dialog.dart';
 
 class AccountingDashboardPage extends StatefulWidget {
   const AccountingDashboardPage({super.key});
@@ -16,6 +19,8 @@ class _AccountingDashboardPageState extends State<AccountingDashboardPage> {
   static const _ink = Color(0xFF102A43);
 
   late final FarmDashboardController _controller;
+  late final FarmAccountingController _accountingController;
+  final _expenseSearchController = TextEditingController();
 
   String? _farm;
   String? _pond;
@@ -28,10 +33,19 @@ class _AccountingDashboardPageState extends State<AccountingDashboardPage> {
     _controller = Get.isRegistered<FarmDashboardController>()
         ? Get.find<FarmDashboardController>()
         : Get.put(FarmDashboardController());
+    _accountingController = Get.isRegistered<FarmAccountingController>()
+        ? Get.find<FarmAccountingController>()
+        : Get.put(FarmAccountingController());
     _farm = _controller.farms
         .where((farm) => farm.id == _controller.selectedFarmId.value)
         .map((farm) => farm.name)
         .firstOrNull;
+  }
+
+  @override
+  void dispose() {
+    _expenseSearchController.dispose();
+    super.dispose();
   }
 
   @override
@@ -90,7 +104,7 @@ class _AccountingDashboardPageState extends State<AccountingDashboardPage> {
                   ),
                   const SizedBox(width: 10),
                   FilledButton.icon(
-                    onPressed: _showExpenseDialog,
+                    onPressed: _openExpenseDialog,
                     style: FilledButton.styleFrom(
                       backgroundColor: _teal,
                       shape: RoundedRectangleBorder(
@@ -163,7 +177,7 @@ class _AccountingDashboardPageState extends State<AccountingDashboardPage> {
             ),
             const SizedBox(height: 16),
             if (_tab == 0) _buildOverview(isMobile),
-            if (_tab == 1) _buildPlaceholder('Expenses', isMobile),
+            if (_tab == 1) _buildExpenses(isMobile),
             if (_tab == 2) _buildPlaceholder('Selling Prices', isMobile),
             if (_tab == 3) _buildPlaceholder('Sales', isMobile),
           ],
@@ -270,20 +284,18 @@ class _AccountingDashboardPageState extends State<AccountingDashboardPage> {
               Row(
                 children: [
                   Expanded(
-                    child: Container(
-                      height: 48,
-                      alignment: Alignment.center,
-                      decoration: BoxDecoration(
-                        color: const Color(0xFFEEF4F8),
-                        borderRadius: BorderRadius.circular(10),
-                      ),
-                      child: const Text(
-                        '+ Expense',
-                        style: TextStyle(
-                          color: Color(0xFF607690),
-                          fontWeight: FontWeight.w800,
+                    child: OutlinedButton(
+                      onPressed: _openExpenseDialog,
+                      style: OutlinedButton.styleFrom(
+                        minimumSize: const Size(0, 48),
+                        foregroundColor: _teal,
+                        backgroundColor: const Color(0xFFEEF4F8),
+                        side: BorderSide.none,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(10),
                         ),
                       ),
+                      child: const Text('+ Expense'),
                     ),
                   ),
                 ],
@@ -481,7 +493,7 @@ class _AccountingDashboardPageState extends State<AccountingDashboardPage> {
           SizedBox(
             width: double.infinity,
             child: FilledButton.icon(
-              onPressed: _showExpenseDialog,
+              onPressed: title == 'Expenses' ? _openExpenseDialog : null,
               style: FilledButton.styleFrom(
                 backgroundColor: _teal,
                 minimumSize: const Size(0, 46),
@@ -495,6 +507,235 @@ class _AccountingDashboardPageState extends State<AccountingDashboardPage> {
           ),
         ],
       ),
+    );
+  }
+
+  Widget _buildExpenses(bool isMobile) {
+    final selectedFarm = _controller.farms
+        .where((farm) => farm.name == _farm)
+        .firstOrNull;
+    final expenses = selectedFarm == null
+        ? const <FarmExpense>[]
+        : _accountingController.filterExpenses(
+            farmId: selectedFarm.id,
+            query: _expenseSearchController.text,
+          );
+
+    return Container(
+      width: double.infinity,
+      padding: EdgeInsets.all(isMobile ? 16 : 20),
+      decoration: _panelDecoration(),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Text(
+                      'Expenses',
+                      style: TextStyle(
+                        color: Color(0xFF102A43),
+                        fontFamily: 'serif',
+                        fontSize: 28,
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    Text(
+                      '${expenses.length} record(s)',
+                      style: const TextStyle(
+                        color: Color(0xFF607690),
+                        fontSize: 12,
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              FilledButton.icon(
+                onPressed: selectedFarm == null ? null : _openExpenseDialog,
+                style: FilledButton.styleFrom(
+                  backgroundColor: _teal,
+                  disabledBackgroundColor: const Color(0xFFB7C7CE),
+                  minimumSize: const Size(0, 40),
+                  padding: const EdgeInsets.symmetric(horizontal: 14),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                ),
+                icon: const Icon(Icons.add, size: 15),
+                label: Text(isMobile ? 'Add' : 'Add Expense'),
+              ),
+            ],
+          ),
+          const SizedBox(height: 18),
+          TextField(
+            controller: _expenseSearchController,
+            onChanged: (_) => setState(() {}),
+            decoration: InputDecoration(
+              hintText: 'Search expenses...',
+              prefixIcon: const Icon(Icons.search, size: 18),
+              contentPadding: const EdgeInsets.symmetric(
+                horizontal: 12,
+                vertical: 12,
+              ),
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(8),
+                borderSide: const BorderSide(color: Color(0xFFD1DDE8)),
+              ),
+              enabledBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(8),
+                borderSide: const BorderSide(color: Color(0xFFD1DDE8)),
+              ),
+            ),
+          ),
+          const SizedBox(height: 18),
+          if (expenses.isEmpty)
+            const Padding(
+              padding: EdgeInsets.symmetric(vertical: 40),
+              child: Center(
+                child: Text(
+                  'No expenses found.',
+                  style: TextStyle(color: Color(0xFF607690)),
+                ),
+              ),
+            )
+          else
+            LayoutBuilder(
+              builder: (context, constraints) {
+                final tableWidth = constraints.maxWidth < 920
+                    ? 920.0
+                    : constraints.maxWidth;
+                return SingleChildScrollView(
+                  scrollDirection: Axis.horizontal,
+                  child: SizedBox(
+                    width: tableWidth,
+                    child: Table(
+                      columnWidths: const {
+                        0: FlexColumnWidth(1.7),
+                        1: FlexColumnWidth(1),
+                        2: FlexColumnWidth(1),
+                        3: FlexColumnWidth(1.1),
+                        4: FlexColumnWidth(2.4),
+                        5: FlexColumnWidth(1.5),
+                      },
+                      defaultVerticalAlignment:
+                          TableCellVerticalAlignment.middle,
+                      children: [
+                        _expenseHeaderRow(),
+                        ...expenses.map(_expenseRow),
+                      ],
+                    ),
+                  ),
+                );
+              },
+            ),
+        ],
+      ),
+    );
+  }
+
+  TableRow _expenseHeaderRow() {
+    const headers = [
+      'STOCKING / BATCH',
+      'CATEGORY',
+      'AMOUNT (BDT)',
+      'EXPENSE DATE',
+      'DESCRIPTION',
+      'ACTIONS',
+    ];
+    return TableRow(
+      decoration: const BoxDecoration(
+        border: Border(bottom: BorderSide(color: Color(0xFFDDE5EC))),
+      ),
+      children: headers
+          .map(
+            (header) => _expenseCell(
+              Text(
+                header,
+                style: const TextStyle(
+                  color: Color(0xFF102A43),
+                  fontSize: 11,
+                  fontWeight: FontWeight.w800,
+                ),
+              ),
+            ),
+          )
+          .toList(),
+    );
+  }
+
+  TableRow _expenseRow(FarmExpense expense) {
+    return TableRow(
+      decoration: const BoxDecoration(
+        border: Border(bottom: BorderSide(color: Color(0xFFE7EDF2))),
+      ),
+      children: [
+        _expenseCell(_expenseText(expense.stockingBatch)),
+        _expenseCell(_expenseText(expense.category.toUpperCase())),
+        _expenseCell(_expenseText('৳${expense.amount.toStringAsFixed(2)}')),
+        _expenseCell(_expenseText(_formatExpenseDate(expense.date))),
+        _expenseCell(_expenseText(expense.description)),
+        _expenseCell(
+          Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              OutlinedButton(
+                onPressed: () => _openExpenseDialog(expense: expense),
+                style: _smallActionStyle(padding: 6),
+                child: const Text('Edit'),
+              ),
+              const SizedBox(width: 4),
+              OutlinedButton(
+                onPressed: () => _deleteExpense(expense),
+                style: _smallActionStyle(
+                  foregroundColor: const Color(0xFFC62828),
+                  padding: 6,
+                ),
+                child: const Text('Delete'),
+              ),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _expenseCell(Widget child) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 12),
+      child: child,
+    );
+  }
+
+  Text _expenseText(String value) {
+    return Text(
+      value,
+      maxLines: 2,
+      overflow: TextOverflow.ellipsis,
+      style: const TextStyle(
+        color: Color(0xFF102A43),
+        fontSize: 12,
+        fontWeight: FontWeight.w600,
+      ),
+    );
+  }
+
+  ButtonStyle _smallActionStyle({Color? foregroundColor, double padding = 10}) {
+    return OutlinedButton.styleFrom(
+      foregroundColor: foregroundColor ?? const Color(0xFF102A43),
+      minimumSize: const Size(0, 36),
+      padding: EdgeInsets.symmetric(horizontal: padding),
+      side: BorderSide(
+        color: foregroundColor == null
+            ? const Color(0xFFD1DDE8)
+            : const Color(0xFFFFB8B8),
+      ),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
     );
   }
 
@@ -544,57 +785,84 @@ class _AccountingDashboardPageState extends State<AccountingDashboardPage> {
     );
   }
 
-  Future<void> _showExpenseDialog() async {
-    await showDialog<void>(
+  Future<void> _openExpenseDialog({FarmExpense? expense}) async {
+    final selectedFarm = _controller.farms
+        .where((farm) => farm.name == _farm)
+        .firstOrNull;
+    if (selectedFarm == null) return;
+
+    final batches = _controller.stockings
+        .where((stocking) => stocking.farmName == selectedFarm.name)
+        .map((stocking) => stocking.batchName)
+        .toSet()
+        .toList();
+    final result = await showDialog<FarmExpense>(
       context: context,
-      builder: (dialogContext) {
-        final amount = TextEditingController();
-        final description = TextEditingController();
-        return AlertDialog(
-          title: const Text('Add Expense'),
-          content: SizedBox(
-            width: 420,
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                TextField(
-                  controller: amount,
-                  keyboardType: TextInputType.number,
-                  decoration: const InputDecoration(
-                    labelText: 'Amount',
-                    border: OutlineInputBorder(),
-                  ),
-                ),
-                const SizedBox(height: 12),
-                TextField(
-                  controller: description,
-                  decoration: const InputDecoration(
-                    labelText: 'Description',
-                    border: OutlineInputBorder(),
-                  ),
-                ),
-              ],
-            ),
-          ),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.of(dialogContext).pop(),
-              child: const Text('Cancel'),
-            ),
-            FilledButton(
-              onPressed: () {
-                Navigator.of(dialogContext).pop();
-                ScaffoldMessenger.of(
-                  context,
-                ).showSnackBar(const SnackBar(content: Text('Expense added')));
-              },
-              style: FilledButton.styleFrom(backgroundColor: _teal),
-              child: const Text('Save'),
-            ),
-          ],
-        );
-      },
+      builder: (_) => ExpenseDialog(
+        farmId: selectedFarm.id,
+        batches: batches,
+        expense: expense,
+      ),
     );
+    if (result == null || !mounted) return;
+
+    if (expense == null) {
+      await _accountingController.addExpense(result);
+      _showMessage('Expense added successfully.');
+    } else {
+      await _accountingController.updateExpense(result);
+      _showMessage('Expense updated successfully.');
+    }
+  }
+
+  Future<void> _deleteExpense(FarmExpense expense) async {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (dialogContext) => AlertDialog(
+        title: const Text('Delete Expense'),
+        content: const Text('Are you sure you want to delete this expense?'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(dialogContext).pop(false),
+            child: const Text('Cancel'),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.of(dialogContext).pop(true),
+            style: FilledButton.styleFrom(
+              backgroundColor: const Color(0xFFC62828),
+            ),
+            child: const Text('Delete'),
+          ),
+        ],
+      ),
+    );
+    if (confirmed != true || !mounted) return;
+    await _accountingController.deleteExpense(expense.id);
+    _showMessage('Expense deleted.');
+  }
+
+  void _showMessage(String message) {
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(SnackBar(content: Text(message)));
+  }
+
+  String _formatExpenseDate(DateTime date) {
+    const months = [
+      'Jan',
+      'Feb',
+      'Mar',
+      'Apr',
+      'May',
+      'Jun',
+      'Jul',
+      'Aug',
+      'Sep',
+      'Oct',
+      'Nov',
+      'Dec',
+    ];
+    return '${months[date.month - 1]} ${date.day}, ${date.year}';
   }
 
   BoxDecoration _panelDecoration() {
