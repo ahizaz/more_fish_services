@@ -41,6 +41,7 @@ class _AccountingDashboardPageState extends State<AccountingDashboardPage> {
   final _saleSearchController = TextEditingController();
   final _revenueScrollController = ScrollController();
   final _metricsScrollController = ScrollController();
+  final _expenseBreakdownScrollController = ScrollController();
 
   String? _farm;
   String? _pond;
@@ -73,11 +74,14 @@ class _AccountingDashboardPageState extends State<AccountingDashboardPage> {
 
   @override
   void dispose() {
+    _revenueScrollController.removeListener(_updateScrollIndicators);
+    _metricsScrollController.removeListener(_updateScrollIndicators);
     _expenseSearchController.dispose();
     _sellingPriceSearchController.dispose();
     _saleSearchController.dispose();
     _revenueScrollController.dispose();
     _metricsScrollController.dispose();
+    _expenseBreakdownScrollController.dispose();
     super.dispose();
   }
 
@@ -113,6 +117,20 @@ class _AccountingDashboardPageState extends State<AccountingDashboardPage> {
       duration: const Duration(milliseconds: 280),
       curve: Curves.easeOut,
     );
+  }
+
+  Future<void> _refreshDashboard() async {
+    await _controller.loadDashboard();
+    if (!mounted) return;
+    setState(() {});
+    ScaffoldMessenger.of(context)
+      ..hideCurrentSnackBar()
+      ..showSnackBar(
+        const SnackBar(
+          content: Text('Dashboard refreshed'),
+          duration: Duration(seconds: 2),
+        ),
+      );
   }
 
   Widget _horizontalCardScroller({
@@ -186,47 +204,49 @@ class _AccountingDashboardPageState extends State<AccountingDashboardPage> {
           foregroundColor: _ink,
           elevation: 0,
           toolbarHeight: 72,
-          leadingWidth: 96,
+          leadingWidth: isMobile ? 82 : 96,
           leading: Padding(
-            padding: const EdgeInsets.only(left: 24, top: 12, bottom: 12),
+            padding: EdgeInsets.only(
+              left: isMobile ? 14 : 24,
+              top: 12,
+              bottom: 12,
+            ),
             child: OutlinedButton(
               onPressed: () => Navigator.of(context).maybePop(),
               style: OutlinedButton.styleFrom(
                 foregroundColor: _ink,
                 minimumSize: Size.zero,
-                padding: const EdgeInsets.symmetric(horizontal: 10),
+                padding: EdgeInsets.symmetric(horizontal: isMobile ? 8 : 10),
                 side: const BorderSide(color: Color(0xFFE1E8F0)),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(8),
                 ),
               ),
-              child: const Text('←  Back'),
+              child: Text(isMobile ? '← Back' : '←  Back'),
             ),
           ),
           actions: [
             Padding(
-              padding: const EdgeInsets.only(right: 24),
+              padding: EdgeInsets.only(right: isMobile ? 14 : 24),
               child: Row(
                 children: [
                   OutlinedButton.icon(
-                    onPressed: () {
-                      setState(() {});
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(
-                          content: Text('Dashboard refreshed'),
-                          duration: Duration(seconds: 2),
-                        ),
-                      );
-                    },
+                    onPressed: _refreshDashboard,
                     style: OutlinedButton.styleFrom(
                       foregroundColor: _ink,
                       side: const BorderSide(color: Color(0xFFD8E1EA)),
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(8),
                       ),
+                      minimumSize: isMobile
+                          ? const Size(42, 40)
+                          : const Size(96, 40),
+                      padding: isMobile
+                          ? EdgeInsets.zero
+                          : const EdgeInsets.symmetric(horizontal: 12),
                     ),
                     icon: const Icon(Icons.refresh, size: 16),
-                    label: const Text('Refresh'),
+                    label: Text(isMobile ? '' : 'Refresh'),
                   ),
                   const SizedBox(width: 10),
                   FilledButton.icon(
@@ -236,9 +256,15 @@ class _AccountingDashboardPageState extends State<AccountingDashboardPage> {
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(8),
                       ),
+                      minimumSize: isMobile
+                          ? const Size(42, 40)
+                          : const Size(96, 40),
+                      padding: isMobile
+                          ? EdgeInsets.zero
+                          : const EdgeInsets.symmetric(horizontal: 12),
                     ),
                     icon: const Icon(Icons.add, size: 16),
-                    label: const Text('Expense'),
+                    label: Text(isMobile ? '' : 'Expense'),
                   ),
                 ],
               ),
@@ -696,8 +722,10 @@ class _AccountingDashboardPageState extends State<AccountingDashboardPage> {
       (sum, value) => sum + value,
     );
 
+    final isCompact = MediaQuery.sizeOf(context).width < 760;
+
     return Container(
-      height: expenses.isEmpty ? 186 : 530,
+      height: isCompact ? 760 : 530,
       width: double.infinity,
       padding: const EdgeInsets.all(18),
       decoration: _panelDecoration(),
@@ -725,50 +753,63 @@ class _AccountingDashboardPageState extends State<AccountingDashboardPage> {
               fontWeight: FontWeight.w600,
             ),
           ),
-          if (expenses.isEmpty)
-            Expanded(
-              child: Center(
-                child: Text(
-                  selectedFarm == null
-                      ? 'Select a farm to view expense breakdown.'
-                      : 'No expenses recorded for this farm.',
-                  textAlign: TextAlign.center,
-                  style: const TextStyle(
-                    color: Color(0xFF90A4BE),
-                    fontSize: 13,
-                    fontWeight: FontWeight.w600,
+          Expanded(
+            child: LayoutBuilder(
+              builder: (context, constraints) {
+                final categoryList = Scrollbar(
+                  controller: _expenseBreakdownScrollController,
+                  thumbVisibility: true,
+                  radius: const Radius.circular(4),
+                  child: ListView(
+                    controller: _expenseBreakdownScrollController,
+                    padding: EdgeInsets.zero,
+                    physics: const BouncingScrollPhysics(),
+                    children: [
+                      for (final category
+                          in FarmAccountingController.categories)
+                        _expenseBreakdownRow(
+                          category: category,
+                          amount: totals[category] ?? 0,
+                          total: totalExpense,
+                        ),
+                    ],
                   ),
-                ),
-              ),
-            )
-          else
-            Expanded(
-              child: Row(
-                children: [
-                  SizedBox(
-                    width: 250,
-                    child: Center(
-                      child: _ExpenseDonut(total: totalExpense, values: totals),
+                );
+
+                if (constraints.maxWidth < 520) {
+                  return Column(
+                    children: [
+                      Center(
+                        child: _ExpenseDonut(
+                          total: totalExpense,
+                          values: totals,
+                        ),
+                      ),
+                      const SizedBox(height: 14),
+                      Expanded(child: categoryList),
+                    ],
+                  );
+                }
+
+                return Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    SizedBox(
+                      width: 250,
+                      child: Center(
+                        child: _ExpenseDonut(
+                          total: totalExpense,
+                          values: totals,
+                        ),
+                      ),
                     ),
-                  ),
-                  const SizedBox(width: 14),
-                  Expanded(
-                    child: ListView(
-                      padding: EdgeInsets.zero,
-                      children: [
-                        for (final category
-                            in FarmAccountingController.categories)
-                          _expenseBreakdownRow(
-                            category: category,
-                            amount: totals[category] ?? 0,
-                            total: totalExpense,
-                          ),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
+                    const SizedBox(width: 14),
+                    Expanded(child: categoryList),
+                  ],
+                );
+              },
             ),
+          ),
         ],
       ),
     );
@@ -892,15 +933,13 @@ class _AccountingDashboardPageState extends State<AccountingDashboardPage> {
           ),
           const SizedBox(height: 16),
           if (latestPrice == null)
-            const Expanded(
-              child: Center(
-                child: Text(
-                  'Select a farm to view selling prices.',
-                  style: TextStyle(
-                    color: Color(0xFF90A4BE),
-                    fontSize: 13,
-                    fontWeight: FontWeight.w600,
-                  ),
+            const Center(
+              child: Text(
+                'Select a farm to view selling prices.',
+                style: TextStyle(
+                  color: Color(0xFF90A4BE),
+                  fontSize: 13,
+                  fontWeight: FontWeight.w600,
                 ),
               ),
             )
@@ -1713,7 +1752,7 @@ class _AccountingDashboardPageState extends State<AccountingDashboardPage> {
 
   Widget _pondDropdown(List<String> ponds) {
     return _DropdownField(
-      value: _pond,
+      value: ponds.contains(_pond) ? _pond : null,
       hint: _farm == null ? 'Select Farm First' : 'Select Pond',
       items: ponds,
       onChanged: (value) => setState(() {
@@ -1724,10 +1763,13 @@ class _AccountingDashboardPageState extends State<AccountingDashboardPage> {
   }
 
   Widget _spaceDropdown() {
+    final spaces = _pond == null
+        ? const <String>[]
+        : const ['Tank A', 'Tank B'];
     return _DropdownField(
-      value: _space,
+      value: spaces.contains(_space) ? _space : null,
       hint: _pond == null ? 'Select Pond First' : 'Select Space',
-      items: _pond == null ? const <String>[] : const ['Tank A', 'Tank B'],
+      items: spaces,
       onChanged: (value) => setState(() => _space = value),
     );
   }
@@ -2002,6 +2044,9 @@ class _DropdownField extends StatelessWidget {
       ),
       child: DropdownButtonHideUnderline(
         child: DropdownButton<String>(
+          key: ValueKey<String>(
+            '${hint}|${value ?? 'none'}|${items.join('|')}',
+          ),
           isExpanded: true,
           value: value,
           hint: Text(hint),
