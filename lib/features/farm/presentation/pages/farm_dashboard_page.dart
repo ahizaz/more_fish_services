@@ -7,6 +7,7 @@ import '../widgets/create_farm_dialog.dart';
 import '../widgets/create_pond_dialog.dart';
 import '../widgets/farm_dashboard_header.dart';
 import '../widgets/farm_dashboard_summary.dart';
+import '../widgets/farm_dashboard_extras.dart';
 import '../widgets/farm_pond_card.dart';
 import '../widgets/stocking_dialog.dart';
 import '../widgets/weekly_update_dialog.dart';
@@ -114,6 +115,8 @@ class _FarmDashboardPageState extends State<FarmDashboardPage> {
               activeCount: activePondCount,
               weeklyUpdateCount: controller.weeklyUpdates.length,
             ),
+            const SizedBox(height: 16),
+            const FarmDashboardExtras(),
             const SizedBox(height: 16),
             if (selectedPonds.isEmpty)
               const FarmEmptyPonds()

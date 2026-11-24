@@ -14,7 +14,6 @@ class FarmDashboardSummary extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final width = MediaQuery.sizeOf(context).width;
     final cards = [
       _SummaryCard(
         title: 'Total Ponds',
@@ -36,24 +35,29 @@ class FarmDashboardSummary extends StatelessWidget {
       ),
     ];
 
-    if (width < 760) {
-      return Column(
-        children: [
-          for (var i = 0; i < cards.length; i++) ...[
-            cards[i],
-            if (i != cards.length - 1) const SizedBox(height: 10),
-          ],
-        ],
-      );
-    }
+    final isMobile = MediaQuery.sizeOf(context).width < 760;
     return Row(
       children: [
         for (var i = 0; i < cards.length; i++) ...[
-          Expanded(child: cards[i]),
-          if (i != cards.length - 1) const SizedBox(width: 12),
+          Expanded(
+            child: _SummaryCardContainer(isMobile: isMobile, child: cards[i]),
+          ),
+          if (i != cards.length - 1) SizedBox(width: isMobile ? 6 : 12),
         ],
       ],
     );
+  }
+}
+
+class _SummaryCardContainer extends StatelessWidget {
+  const _SummaryCardContainer({required this.isMobile, required this.child});
+
+  final bool isMobile;
+  final Widget child;
+
+  @override
+  Widget build(BuildContext context) {
+    return isMobile ? SizedBox(height: 88, child: child) : child;
   }
 }
 
@@ -72,47 +76,53 @@ class _SummaryCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isMobile = MediaQuery.sizeOf(context).width < 760;
     return Container(
-      height: 92,
-      padding: const EdgeInsets.all(16),
+      height: isMobile ? 88 : 92,
+      padding: EdgeInsets.all(isMobile ? 8 : 16),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(16),
         border: Border.all(color: const Color(0xFFE1E8F0)),
       ),
       child: Row(
+        crossAxisAlignment: CrossAxisAlignment.center,
         children: [
           Container(
-            width: 48,
-            height: 48,
+            width: isMobile ? 36 : 48,
+            height: isMobile ? 36 : 48,
             decoration: BoxDecoration(
               color: color.withValues(alpha: 0.12),
               borderRadius: BorderRadius.circular(12),
             ),
-            child: Icon(icon, color: color),
+            child: Icon(icon, color: color, size: isMobile ? 18 : 24),
           ),
-          const SizedBox(width: 12),
-          Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                value,
-                style: const TextStyle(
-                  color: Color(0xFF102A43),
-                  fontSize: 22,
-                  fontWeight: FontWeight.w800,
+          SizedBox(width: isMobile ? 6 : 12),
+          Expanded(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  value,
+                  style: TextStyle(
+                    color: const Color(0xFF102A43),
+                    fontSize: isMobile ? 18 : 22,
+                    fontWeight: FontWeight.w800,
+                  ),
                 ),
-              ),
-              Text(
-                title,
-                style: const TextStyle(
-                  color: Color(0xFF66788A),
-                  fontSize: 12,
-                  fontWeight: FontWeight.w600,
+                Text(
+                  title,
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                  style: TextStyle(
+                    color: const Color(0xFF66788A),
+                    fontSize: isMobile ? 9 : 12,
+                    fontWeight: FontWeight.w600,
+                  ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
         ],
       ),
