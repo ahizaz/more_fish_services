@@ -1,122 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 
-class PondSensorData {
-  const PondSensorData({
-    required this.label,
-    required this.value,
-    required this.color,
-    required this.icon,
-  });
+import '../../controllers/pond_detail_controller.dart';
+import '../../models/pond_detail_models.dart';
 
-  final String label;
-  final String value;
-  final Color color;
-  final IconData icon;
-}
-
-class PondMetricData {
-  const PondMetricData({
-    required this.label,
-    required this.value,
-    required this.unit,
-  });
-
-  final String label;
-  final String value;
-  final String unit;
-}
-
-class PondDetailData {
-  const PondDetailData({
-    required this.pondName,
-    required this.farmName,
-    required this.aeratorName,
-    required this.deviceNumber,
-    required this.liveDo,
-    required this.isOnline,
-    required this.sensors,
-    required this.batchName,
-    required this.cultureZone,
-    required this.metrics,
-    required this.biomassValues,
-  });
-
-  final String pondName;
-  final String farmName;
-  final String aeratorName;
-  final String deviceNumber;
-  final double liveDo;
-  final bool isOnline;
-  final List<PondSensorData> sensors;
-  final String batchName;
-  final String cultureZone;
-  final List<PondMetricData> metrics;
-  final List<double> biomassValues;
-
-  factory PondDetailData.demo({
-    required String pondName,
-    required String farmName,
-  }) {
-    return PondDetailData(
-      pondName: pondName,
-      farmName: farmName,
-      aeratorName: 'final_aerator_name',
-      deviceNumber: '3',
-      liveDo: 4.42,
-      isOnline: false,
-      sensors: const [
-        PondSensorData(
-          label: 'PH',
-          value: '8.57 ph',
-          color: Color(0xFF315BDA),
-          icon: Icons.science_outlined,
-        ),
-        PondSensorData(
-          label: 'TEMPERATURE',
-          value: '26.0 °C',
-          color: Color(0xFFE06C5C),
-          icon: Icons.thermostat,
-        ),
-        PondSensorData(
-          label: 'DO',
-          value: '4.42 mg/L',
-          color: Color(0xFF1887E8),
-          icon: Icons.water_drop_outlined,
-        ),
-        PondSensorData(
-          label: 'TDS',
-          value: '481.0 ppm',
-          color: Color(0xFFB56A16),
-          icon: Icons.layers_outlined,
-        ),
-        PondSensorData(
-          label: 'SALINITY',
-          value: '0.062 ppt',
-          color: Color(0xFF00A67E),
-          icon: Icons.blur_circular,
-        ),
-        PondSensorData(
-          label: 'NH3',
-          value: '0.3909 mg/L',
-          color: Color(0xFF9B5DE5),
-          icon: Icons.warning_amber_rounded,
-        ),
-      ],
-      batchName: 'AquaNova Tilapia Batch 01',
-      cultureZone: 'Blue Pearl Culture Zone',
-      metrics: const [
-        PondMetricData(label: 'STANDING STOCK', value: '1,158', unit: 'Fish'),
-        PondMetricData(label: 'BIOMASS', value: '394.88', unit: 'kg'),
-        PondMetricData(label: 'MEAN WEIGHT', value: '341', unit: 'g / fish'),
-        PondMetricData(label: 'GROWTH', value: '1.86', unit: 'g / day'),
-        PondMetricData(label: 'FCR', value: '1.29', unit: 'Feed Conversion'),
-      ],
-      biomassValues: const [394.9, 459.4, 523.9, 588.4],
-    );
-  }
-}
-
-class PondDetailPage extends StatefulWidget {
+class PondDetailPage extends StatelessWidget {
   const PondDetailPage({
     super.key,
     required this.pondName,
@@ -129,100 +17,98 @@ class PondDetailPage extends StatefulWidget {
   final PondDetailData? data;
 
   @override
-  State<PondDetailPage> createState() => _PondDetailPageState();
-}
-
-class _PondDetailPageState extends State<PondDetailPage> {
-  bool _automationEnabled = false;
-  bool _manualOn = false;
-  final TextEditingController _minimumDo = TextEditingController(text: '3');
-  final TextEditingController _maximumDo = TextEditingController(text: '6');
-
-  @override
-  void dispose() {
-    _minimumDo.dispose();
-    _maximumDo.dispose();
-    super.dispose();
-  }
-
-  @override
   Widget build(BuildContext context) {
-    final isMobile = MediaQuery.sizeOf(context).width < 760;
-    final data =
-        widget.data ??
-        PondDetailData.demo(
-          pondName: widget.pondName,
-          farmName: widget.farmName,
-        );
-
-    return Scaffold(
-      backgroundColor: const Color(0xFFEAF1F5),
-      body: SafeArea(
-        child: Column(
-          children: [
-            _PondHeader(
-              pondName: data.pondName,
-              onClose: () => Navigator.of(context).pop(),
+    final tag = '$farmName-$pondName';
+    final controller = Get.isRegistered<PondDetailController>(tag: tag)
+        ? Get.find<PondDetailController>(tag: tag)
+        : Get.put(
+            PondDetailController(
+              pondName: pondName,
+              farmName: farmName,
+              initialData: data,
             ),
-            Expanded(
-              child: SingleChildScrollView(
-                padding: EdgeInsets.fromLTRB(
-                  isMobile ? 12 : 32,
-                  16,
-                  isMobile ? 12 : 32,
-                  32,
-                ),
-                child: Center(
-                  child: ConstrainedBox(
-                    constraints: const BoxConstraints(maxWidth: 1120),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.stretch,
-                      children: [
-                        _AeratorCard(
-                          data: data,
-                          manualOn: _manualOn,
-                          automationEnabled: _automationEnabled,
-                          minimumDo: _minimumDo,
-                          maximumDo: _maximumDo,
-                          onManualChanged: (value) {
-                            if (_automationEnabled) return;
-                            setState(() => _manualOn = value);
-                          },
-                          onAutomationChanged: (value) {
-                            setState(() {
-                              _automationEnabled = value;
-                              if (value) _manualOn = false;
-                            });
-                          },
-                          onSave: () {
-                            FocusScope.of(context).unfocus();
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(
-                                content: Text('Aerator settings saved'),
-                                behavior: SnackBarBehavior.floating,
-                                duration: Duration(seconds: 2),
-                              ),
-                            );
-                          },
-                        ),
-                        const SizedBox(height: 16),
-                        _SensorSection(sensors: data.sensors),
-                        const SizedBox(height: 16),
-                        _BatchSection(data: data),
-                        const SizedBox(height: 16),
-                        _BatchMetrics(metrics: data.metrics),
-                        const SizedBox(height: 16),
-                        _BiomassChart(data: data),
-                      ],
+            tag: tag,
+          );
+
+    final isMobile = MediaQuery.sizeOf(context).width < 760;
+    return Obx(() {
+      final pondData = controller.data.value;
+      if (pondData == null) {
+        return const Scaffold(body: Center(child: CircularProgressIndicator()));
+      }
+
+      return Scaffold(
+        backgroundColor: const Color(0xFFEAF1F5),
+        body: SafeArea(
+          child: Column(
+            children: [
+              _PondHeader(
+                pondName: pondData.pondName,
+                onClose: () {
+                  Get.delete<PondDetailController>(tag: tag);
+                  Navigator.of(context).pop();
+                },
+              ),
+              Expanded(
+                child: SingleChildScrollView(
+                  padding: EdgeInsets.fromLTRB(
+                    isMobile ? 12 : 32,
+                    16,
+                    isMobile ? 12 : 32,
+                    32,
+                  ),
+                  child: Center(
+                    child: ConstrainedBox(
+                      constraints: const BoxConstraints(maxWidth: 1120),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: [
+                          _AeratorCard(
+                            data: pondData,
+                            manualOn: controller.manualOn.value,
+                            automationEnabled:
+                                controller.automationEnabled.value,
+                            minimumDo: controller.minimumDo,
+                            maximumDo: controller.maximumDo,
+                            onManualChanged: controller.setManual,
+                            onAutomationChanged: controller.setAutomation,
+                            onSave: () async {
+                              FocusScope.of(context).unfocus();
+                              final saved = await controller
+                                  .saveAeratorSettings();
+                              if (!context.mounted) return;
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(
+                                  content: Text(
+                                    saved
+                                        ? 'Aerator settings saved'
+                                        : 'Unable to save aerator settings',
+                                  ),
+                                  behavior: SnackBarBehavior.floating,
+                                  duration: const Duration(seconds: 2),
+                                ),
+                              );
+                            },
+                          ),
+                          const SizedBox(height: 16),
+                          _SensorSection(sensors: pondData.sensors),
+                          const SizedBox(height: 16),
+                          _BatchSection(data: pondData),
+                          const SizedBox(height: 16),
+                          _BatchMetrics(metrics: pondData.metrics),
+                          const SizedBox(height: 16),
+                          _BiomassChart(data: pondData),
+                        ],
+                      ),
                     ),
                   ),
                 ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
-      ),
-    );
+      );
+    });
   }
 }
 
