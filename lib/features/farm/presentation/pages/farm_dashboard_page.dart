@@ -957,6 +957,9 @@ class _CreateFarmDialogState extends State<_CreateFarmDialog> {
                   const SizedBox(height: 8),
                   DropdownButtonFormField<String>(
                     initialValue: _location,
+                    isExpanded: true,
+                    isDense: true,
+                    iconSize: 20,
                     decoration: _dialogFieldDecoration(null),
                     items: const [
                       DropdownMenuItem(
@@ -1137,6 +1140,9 @@ class _CreatePondDialogState extends State<_CreatePondDialog> {
                   const SizedBox(height: 8),
                   DropdownButtonFormField<String>(
                     initialValue: _farmId,
+                    isExpanded: true,
+                    isDense: true,
+                    iconSize: 20,
                     decoration: _dialogFieldDecoration(null),
                     items: widget.farms
                         .map(
@@ -1194,6 +1200,9 @@ class _CreatePondDialogState extends State<_CreatePondDialog> {
                           const SizedBox(height: 8),
                           DropdownButtonFormField<String>(
                             initialValue: _areaUnit,
+                            isExpanded: true,
+                            isDense: true,
+                            iconSize: 20,
                             decoration: _dialogFieldDecoration(null),
                             items: const [
                               DropdownMenuItem(
@@ -1516,9 +1525,26 @@ class _StockingDialogState extends State<_StockingDialog> {
       label: label,
       child: DropdownButtonFormField<String>(
         initialValue: value,
+        isExpanded: true,
+        isDense: true,
+        iconSize: 20,
         hint: hint == null ? null : Text(hint),
         decoration: _dialogFieldDecoration(null),
         items: items,
+        selectedItemBuilder: (context) => [
+          for (final item in items)
+            SizedBox(
+              width: double.infinity,
+              child: Align(
+                alignment: Alignment.centerLeft,
+                child: FittedBox(
+                  fit: BoxFit.scaleDown,
+                  alignment: Alignment.centerLeft,
+                  child: item.child,
+                ),
+              ),
+            ),
+        ],
         onChanged: onChanged,
         validator: validator,
       ),
@@ -1813,9 +1839,26 @@ class _WeeklyUpdateDialogState extends State<_WeeklyUpdateDialog> {
       label: label,
       child: DropdownButtonFormField<String>(
         initialValue: value,
+        isExpanded: true,
+        isDense: true,
+        iconSize: 20,
         hint: hint == null ? null : Text(hint),
         decoration: _dialogFieldDecoration(null),
         items: items,
+        selectedItemBuilder: (context) => [
+          for (final item in items)
+            SizedBox(
+              width: double.infinity,
+              child: Align(
+                alignment: Alignment.centerLeft,
+                child: FittedBox(
+                  fit: BoxFit.scaleDown,
+                  alignment: Alignment.centerLeft,
+                  child: item.child,
+                ),
+              ),
+            ),
+        ],
         onChanged: onChanged,
         validator: validator,
       ),
@@ -1867,12 +1910,14 @@ class _ScrollableDialog extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final height =
-        MediaQuery.sizeOf(context).height -
-        MediaQuery.viewInsetsOf(context).bottom -
-        44;
+    final size = MediaQuery.sizeOf(context);
+    final isMobile = size.width < 600;
+    final height = size.height - MediaQuery.viewInsetsOf(context).bottom - 44;
     return Dialog(
-      insetPadding: const EdgeInsets.symmetric(horizontal: 24, vertical: 22),
+      insetPadding: EdgeInsets.symmetric(
+        horizontal: isMobile ? 10 : 24,
+        vertical: 22,
+      ),
       backgroundColor: const Color(0xE6DCE5EC),
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(28),
@@ -1881,7 +1926,12 @@ class _ScrollableDialog extends StatelessWidget {
       child: ConstrainedBox(
         constraints: BoxConstraints(maxWidth: 820, maxHeight: height),
         child: Padding(
-          padding: const EdgeInsets.fromLTRB(22, 16, 22, 20),
+          padding: EdgeInsets.fromLTRB(
+            isMobile ? 16 : 22,
+            16,
+            isMobile ? 16 : 22,
+            20,
+          ),
           child: SingleChildScrollView(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
