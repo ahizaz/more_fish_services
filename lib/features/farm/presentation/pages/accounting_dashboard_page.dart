@@ -4,7 +4,11 @@ import 'package:get/get.dart';
 import '../../controllers/farm_accounting_controller.dart';
 import '../../controllers/farm_dashboard_controller.dart';
 import '../../models/farm_expense.dart';
+import '../../models/farm_sale.dart';
+import '../../models/farm_selling_price.dart';
 import '../widgets/expense_dialog.dart';
+import '../widgets/sale_dialog.dart';
+import '../widgets/selling_price_dialog.dart';
 
 class AccountingDashboardPage extends StatefulWidget {
   const AccountingDashboardPage({super.key});
@@ -21,6 +25,8 @@ class _AccountingDashboardPageState extends State<AccountingDashboardPage> {
   late final FarmDashboardController _controller;
   late final FarmAccountingController _accountingController;
   final _expenseSearchController = TextEditingController();
+  final _sellingPriceSearchController = TextEditingController();
+  final _saleSearchController = TextEditingController();
 
   String? _farm;
   String? _pond;
@@ -45,6 +51,8 @@ class _AccountingDashboardPageState extends State<AccountingDashboardPage> {
   @override
   void dispose() {
     _expenseSearchController.dispose();
+    _sellingPriceSearchController.dispose();
+    _saleSearchController.dispose();
     super.dispose();
   }
 
@@ -178,8 +186,8 @@ class _AccountingDashboardPageState extends State<AccountingDashboardPage> {
             const SizedBox(height: 16),
             if (_tab == 0) _buildOverview(isMobile),
             if (_tab == 1) _buildExpenses(isMobile),
-            if (_tab == 2) _buildPlaceholder('Selling Prices', isMobile),
-            if (_tab == 3) _buildPlaceholder('Sales', isMobile),
+            if (_tab == 2) _buildSellingPrices(isMobile),
+            if (_tab == 3) _buildSales(isMobile),
           ],
         ),
       );
@@ -471,42 +479,466 @@ class _AccountingDashboardPageState extends State<AccountingDashboardPage> {
     );
   }
 
-  Widget _buildPlaceholder(String title, bool isMobile) {
+  Widget _buildSales(bool isMobile) {
+    final selectedFarm = _controller.farms
+        .where((farm) => farm.name == _farm)
+        .firstOrNull;
+    final sales = selectedFarm == null
+        ? const <FarmSale>[]
+        : _accountingController.filterSales(
+            farmId: selectedFarm.id,
+            query: _saleSearchController.text,
+          );
+    final totalRevenue = sales.fold<double>(
+      0,
+      (total, sale) => total + sale.revenue,
+    );
+    final totalWeight = sales.fold<double>(
+      0,
+      (total, sale) => total + sale.weightSold,
+    );
+
     return Container(
       width: double.infinity,
-      constraints: const BoxConstraints(minHeight: 300),
-      padding: EdgeInsets.all(isMobile ? 16 : 22),
+      padding: EdgeInsets.all(isMobile ? 16 : 18),
       decoration: _panelDecoration(),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
-            title,
-            style: const TextStyle(
-              color: Color(0xFF102A43),
-              fontFamily: 'serif',
-              fontSize: 26,
-              fontWeight: FontWeight.w700,
+          Row(
+            children: [
+              const Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'Fish Sales',
+                      style: TextStyle(
+                        color: Color(0xFF102A43),
+                        fontFamily: 'serif',
+                        fontSize: 28,
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
+                    SizedBox(height: 8),
+                    Text(
+                      'Actual recorded sales and revenue',
+                      style: TextStyle(
+                        color: Color(0xFF607690),
+                        fontSize: 12,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              FilledButton.icon(
+                onPressed: selectedFarm == null ? null : _openSaleDialog,
+                style: FilledButton.styleFrom(
+                  backgroundColor: _teal,
+                  disabledBackgroundColor: const Color(0xFFB7C7CE),
+                  minimumSize: const Size(0, 40),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                ),
+                icon: const Icon(Icons.add, size: 15),
+                label: Text(isMobile ? 'Record' : '+ Record Sale'),
+              ),
+            ],
+          ),
+          const SizedBox(height: 18),
+          LayoutBuilder(
+            builder: (context, constraints) {
+              final cardWidth = isMobile
+                  ? constraints.maxWidth
+                  : (constraints.maxWidth - 20) / 3;
+              return Wrap(
+                spacing: 10,
+                runSpacing: 10,
+                children: [
+                  _salesMetricCard(
+                    'Total Sales',
+                    '৳${totalRevenue.toStringAsFixed(0)}',
+                    const Color(0xFFE9FAF7),
+                    _teal,
+                    cardWidth,
+                  ),
+                  _salesMetricCard(
+                    'Sale Records',
+                    '${sales.length}',
+                    const Color(0xFFEAF2FF),
+                    const Color(0xFF356AE6),
+                    cardWidth,
+                  ),
+                  _salesMetricCard(
+                    'Weight Sold',
+                    '${totalWeight.toStringAsFixed(0)} kg',
+                    const Color(0xFFFFF5E9),
+                    const Color(0xFFF05A00),
+                    cardWidth,
+                  ),
+                ],
+              );
+            },
+          ),
+          const SizedBox(height: 18),
+          TextField(
+            controller: _saleSearchController,
+            onChanged: (_) => setState(() {}),
+            decoration: InputDecoration(
+              hintText: 'Search sales...',
+              prefixIcon: const Icon(Icons.search, size: 18),
+              contentPadding: const EdgeInsets.symmetric(
+                horizontal: 12,
+                vertical: 12,
+              ),
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(8),
+                borderSide: const BorderSide(color: Color(0xFFD1DDE8)),
+              ),
             ),
           ),
           const SizedBox(height: 18),
-          SizedBox(
-            width: double.infinity,
-            child: FilledButton.icon(
-              onPressed: title == 'Expenses' ? _openExpenseDialog : null,
-              style: FilledButton.styleFrom(
-                backgroundColor: _teal,
-                minimumSize: const Size(0, 46),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(8),
+          if (sales.isEmpty)
+            const Padding(
+              padding: EdgeInsets.symmetric(vertical: 40),
+              child: Center(
+                child: Text(
+                  'No sales records found.',
+                  style: TextStyle(color: Color(0xFF607690)),
                 ),
               ),
-              icon: const Icon(Icons.add),
-              label: Text(title == 'Expenses' ? 'Add Expense' : 'Add $title'),
+            )
+          else
+            LayoutBuilder(
+              builder: (context, constraints) {
+                final tableWidth =
+                    constraints.maxWidth < 1040 ? 1040.0 : constraints.maxWidth;
+                return SingleChildScrollView(
+                  scrollDirection: Axis.horizontal,
+                  child: SizedBox(
+                    width: tableWidth,
+                    child: Table(
+                      columnWidths: const {
+                        0: FlexColumnWidth(1.1),
+                        1: FlexColumnWidth(1.8),
+                        2: FlexColumnWidth(1),
+                        3: FlexColumnWidth(1),
+                        4: FlexColumnWidth(1),
+                        5: FlexColumnWidth(1.6),
+                        6: FlexColumnWidth(1.2),
+                        7: FlexColumnWidth(1.2),
+                      },
+                      defaultVerticalAlignment:
+                          TableCellVerticalAlignment.middle,
+                      children: [
+                        _salesHeaderRow(),
+                        ...sales.map(_salesRow),
+                      ],
+                    ),
+                  ),
+                );
+              },
             ),
-          ),
         ],
       ),
+    );
+  }
+
+  Widget _salesMetricCard(
+    String title,
+    String value,
+    Color background,
+    Color foreground,
+    double width,
+  ) {
+    return SizedBox(
+      width: width,
+      child: Container(
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          color: background,
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(color: const Color(0xFFE1E7ED)),
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(title, style: TextStyle(color: foreground, fontSize: 12)),
+            const SizedBox(height: 8),
+            Text(
+              value,
+              style: TextStyle(
+                color: foreground,
+                fontSize: 20,
+                fontWeight: FontWeight.w800,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  TableRow _salesHeaderRow() {
+    const headers = [
+      'SALE DATE',
+      'STOCKING',
+      'WEIGHT (KG)',
+      'FISH COUNT',
+      'PRICE / KG',
+      'BUYER',
+      'REVENUE',
+      'ACTIONS',
+    ];
+    return TableRow(
+      decoration: const BoxDecoration(
+        border: Border(bottom: BorderSide(color: Color(0xFFDDE5EC))),
+      ),
+      children: headers
+          .map(
+            (header) => _expenseCell(
+              Text(
+                header,
+                style: const TextStyle(
+                  color: Color(0xFF102A43),
+                  fontSize: 11,
+                  fontWeight: FontWeight.w800,
+                ),
+              ),
+            ),
+          )
+          .toList(),
+    );
+  }
+
+  TableRow _salesRow(FarmSale sale) {
+    return TableRow(
+      decoration: const BoxDecoration(
+        border: Border(bottom: BorderSide(color: Color(0xFFE7EDF2))),
+      ),
+      children: [
+        _expenseCell(_expenseText(_formatExpenseDate(sale.date))),
+        _expenseCell(_expenseText(sale.stockingBatch)),
+        _expenseCell(_expenseText(sale.weightSold.toString())),
+        _expenseCell(_expenseText('${sale.fishCount ?? '—'}')),
+        _expenseCell(_expenseText('৳${sale.pricePerKg.toStringAsFixed(0)}')),
+        _expenseCell(_expenseText(sale.buyerName.isEmpty ? '—' : sale.buyerName)),
+        _expenseCell(_expenseText('৳${sale.revenue.toStringAsFixed(0)}')),
+        _expenseCell(
+          Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              OutlinedButton(
+                onPressed: () => _openSaleDialog(sale: sale),
+                style: _smallActionStyle(padding: 6),
+                child: const Text('Edit'),
+              ),
+              const SizedBox(width: 4),
+              OutlinedButton(
+                onPressed: () => _deleteSale(sale),
+                style: _smallActionStyle(
+                  foregroundColor: const Color(0xFFC62828),
+                  padding: 6,
+                ),
+                child: const Text('Delete'),
+              ),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildSellingPrices(bool isMobile) {
+    final selectedFarm = _controller.farms
+        .where((farm) => farm.name == _farm)
+        .firstOrNull;
+    final prices = selectedFarm == null
+        ? const <FarmSellingPrice>[]
+        : _accountingController.filterSellingPrices(
+            farmId: selectedFarm.id,
+            query: _sellingPriceSearchController.text,
+          );
+
+    return Container(
+      width: double.infinity,
+      padding: EdgeInsets.all(isMobile ? 16 : 20),
+      decoration: _panelDecoration(),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'Fish Selling Price',
+                      style: TextStyle(
+                        color: Color(0xFF102A43),
+                        fontFamily: 'serif',
+                        fontSize: 28,
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
+                    SizedBox(height: 8),
+                    Text(
+                      'Stocking-wise selling price history',
+                      style: TextStyle(
+                        color: Color(0xFF607690),
+                        fontSize: 12,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              FilledButton.icon(
+                onPressed: selectedFarm == null
+                    ? null
+                    : _openSellingPriceDialog,
+                style: FilledButton.styleFrom(
+                  backgroundColor: _teal,
+                  disabledBackgroundColor: const Color(0xFFB7C7CE),
+                  minimumSize: const Size(0, 40),
+                  padding: const EdgeInsets.symmetric(horizontal: 14),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                ),
+                icon: const Icon(Icons.add, size: 15),
+                label: Text(isMobile ? 'Add' : '+ Add Selling Price'),
+              ),
+            ],
+          ),
+          const SizedBox(height: 18),
+          TextField(
+            controller: _sellingPriceSearchController,
+            onChanged: (_) => setState(() {}),
+            decoration: InputDecoration(
+              hintText: 'Search selling price records...',
+              prefixIcon: const Icon(Icons.search, size: 18),
+              contentPadding: const EdgeInsets.symmetric(
+                horizontal: 12,
+                vertical: 12,
+              ),
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(8),
+                borderSide: const BorderSide(color: Color(0xFFD1DDE8)),
+              ),
+              enabledBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(8),
+                borderSide: const BorderSide(color: Color(0xFFD1DDE8)),
+              ),
+            ),
+          ),
+          const SizedBox(height: 18),
+          if (prices.isEmpty)
+            const Padding(
+              padding: EdgeInsets.symmetric(vertical: 40),
+              child: Center(
+                child: Text(
+                  'No selling price records found.',
+                  style: TextStyle(color: Color(0xFF607690)),
+                ),
+              ),
+            )
+          else
+            LayoutBuilder(
+              builder: (context, constraints) {
+                final tableWidth = constraints.maxWidth < 920
+                    ? 920.0
+                    : constraints.maxWidth;
+                return SingleChildScrollView(
+                  scrollDirection: Axis.horizontal,
+                  child: SizedBox(
+                    width: tableWidth,
+                    child: Table(
+                      columnWidths: const {
+                        0: FlexColumnWidth(1.7),
+                        1: FlexColumnWidth(1),
+                        2: FlexColumnWidth(1.1),
+                        3: FlexColumnWidth(1.5),
+                      },
+                      defaultVerticalAlignment:
+                          TableCellVerticalAlignment.middle,
+                      children: [
+                        _sellingPriceHeaderRow(),
+                        ...prices.map(_sellingPriceRow),
+                      ],
+                    ),
+                  ),
+                );
+              },
+            ),
+        ],
+      ),
+    );
+  }
+
+  TableRow _sellingPriceHeaderRow() {
+    const headers = [
+      'STOCKING / BATCH',
+      'PRICE PER KG',
+      'PRICE DATE',
+      'ACTIONS',
+    ];
+    return TableRow(
+      decoration: const BoxDecoration(
+        border: Border(bottom: BorderSide(color: Color(0xFFDDE5EC))),
+      ),
+      children: headers
+          .map(
+            (header) => _expenseCell(
+              Text(
+                header,
+                style: const TextStyle(
+                  color: Color(0xFF102A43),
+                  fontSize: 11,
+                  fontWeight: FontWeight.w800,
+                ),
+              ),
+            ),
+          )
+          .toList(),
+    );
+  }
+
+  TableRow _sellingPriceRow(FarmSellingPrice price) {
+    return TableRow(
+      decoration: const BoxDecoration(
+        border: Border(bottom: BorderSide(color: Color(0xFFE7EDF2))),
+      ),
+      children: [
+        _expenseCell(_expenseText(price.stockingBatch)),
+        _expenseCell(_expenseText('৳${price.pricePerKg.toStringAsFixed(2)}')),
+        _expenseCell(_expenseText(_formatExpenseDate(price.date))),
+        _expenseCell(
+          Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              OutlinedButton(
+                onPressed: () => _openSellingPriceDialog(sellingPrice: price),
+                style: _smallActionStyle(padding: 6),
+                child: const Text('Edit'),
+              ),
+              const SizedBox(width: 4),
+              OutlinedButton(
+                onPressed: () => _deleteSellingPrice(price),
+                style: _smallActionStyle(
+                  foregroundColor: const Color(0xFFC62828),
+                  padding: 6,
+                ),
+                child: const Text('Delete'),
+              ),
+            ],
+          ),
+        ),
+      ],
     );
   }
 
@@ -839,6 +1271,120 @@ class _AccountingDashboardPageState extends State<AccountingDashboardPage> {
     if (confirmed != true || !mounted) return;
     await _accountingController.deleteExpense(expense.id);
     _showMessage('Expense deleted.');
+  }
+
+  Future<void> _openSellingPriceDialog({FarmSellingPrice? sellingPrice}) async {
+    final selectedFarm = _controller.farms
+        .where((farm) => farm.name == _farm)
+        .firstOrNull;
+    if (selectedFarm == null) return;
+
+    final batches = _controller.stockings
+        .where((stocking) => stocking.farmName == selectedFarm.name)
+        .map((stocking) => stocking.batchName)
+        .toSet()
+        .toList();
+    final result = await showDialog<FarmSellingPrice>(
+      context: context,
+      builder: (_) => SellingPriceDialog(
+        farmId: selectedFarm.id,
+        batches: batches,
+        sellingPrice: sellingPrice,
+      ),
+    );
+    if (result == null || !mounted) return;
+
+    if (sellingPrice == null) {
+      await _accountingController.addSellingPrice(result);
+      _showMessage('Selling price added successfully.');
+    } else {
+      await _accountingController.updateSellingPrice(result);
+      _showMessage('Selling price updated successfully.');
+    }
+  }
+
+  Future<void> _deleteSellingPrice(FarmSellingPrice price) async {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (dialogContext) => AlertDialog(
+        title: const Text('Delete Selling Price'),
+        content: const Text(
+          'Are you sure you want to delete this selling price?',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(dialogContext).pop(false),
+            child: const Text('Cancel'),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.of(dialogContext).pop(true),
+            style: FilledButton.styleFrom(
+              backgroundColor: const Color(0xFFC62828),
+            ),
+            child: const Text('Delete'),
+          ),
+        ],
+      ),
+    );
+    if (confirmed != true || !mounted) return;
+    await _accountingController.deleteSellingPrice(price.id);
+    _showMessage('Selling price deleted.');
+  }
+
+  Future<void> _openSaleDialog({FarmSale? sale}) async {
+    final selectedFarm = _controller.farms
+        .where((farm) => farm.name == _farm)
+        .firstOrNull;
+    if (selectedFarm == null) return;
+
+    final batches = _controller.stockings
+        .where((stocking) => stocking.farmName == selectedFarm.name)
+        .map((stocking) => stocking.batchName)
+        .toSet()
+        .toList();
+    final result = await showDialog<FarmSale>(
+      context: context,
+      builder: (_) => SaleDialog(
+        farmId: selectedFarm.id,
+        batches: batches,
+        sale: sale,
+      ),
+    );
+    if (result == null || !mounted) return;
+
+    if (sale == null) {
+      await _accountingController.addSale(result);
+      _showMessage('Sale recorded successfully.');
+    } else {
+      await _accountingController.updateSale(result);
+      _showMessage('Sale updated successfully.');
+    }
+  }
+
+  Future<void> _deleteSale(FarmSale sale) async {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (dialogContext) => AlertDialog(
+        title: const Text('Delete Sale'),
+        content: const Text('Are you sure you want to delete this sale?'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(dialogContext).pop(false),
+            child: const Text('Cancel'),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.of(dialogContext).pop(true),
+            style: FilledButton.styleFrom(
+              backgroundColor: const Color(0xFFC62828),
+            ),
+            child: const Text('Delete'),
+          ),
+        ],
+      ),
+    );
+    if (confirmed != true || !mounted) return;
+    await _accountingController.deleteSale(sale.id);
+    _showMessage('Sale deleted.');
   }
 
   void _showMessage(String message) {
