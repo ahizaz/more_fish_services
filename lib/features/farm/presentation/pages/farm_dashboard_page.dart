@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:file_picker/file_picker.dart';
+import 'pond_detail_page.dart';
 
 class Farm {
   const Farm({required this.id, required this.name, required this.location});
@@ -12,17 +13,21 @@ class Farm {
 class Pond {
   const Pond({
     required this.id,
+    required this.farmId,
     required this.name,
     required this.area,
     required this.areaUnit,
     required this.status,
+    this.imageName,
   });
 
   final String id;
+  final String farmId;
   final String name;
   final String area;
   final String areaUnit;
   final String status;
+  final String? imageName;
 }
 
 class Stocking {
@@ -82,6 +87,7 @@ class _FarmDashboardPageState extends State<FarmDashboardPage> {
   final List<Pond> _ponds = [
     const Pond(
       id: 'pond-1',
+      farmId: 'farm-1',
       name: 'Blue Pearl Pond',
       area: '2.00',
       areaUnit: 'DECIMAL',
@@ -89,6 +95,7 @@ class _FarmDashboardPageState extends State<FarmDashboardPage> {
     ),
     const Pond(
       id: 'pond-2',
+      farmId: 'farm-1',
       name: 'Green Valley Pond',
       area: '1.50',
       areaUnit: 'DECIMAL',
@@ -134,6 +141,12 @@ class _FarmDashboardPageState extends State<FarmDashboardPage> {
   @override
   Widget build(BuildContext context) {
     final isMobile = MediaQuery.sizeOf(context).width < 760;
+    final selectedPonds = _ponds
+        .where((pond) => pond.farmId == _selectedFarmId)
+        .toList();
+    final activePondCount = selectedPonds
+        .where((pond) => pond.status == 'Active')
+        .length;
 
     return Scaffold(
       backgroundColor: const Color(0xFFF4F7FB),
@@ -165,7 +178,7 @@ class _FarmDashboardPageState extends State<FarmDashboardPage> {
             const SizedBox(height: 4),
             Text(
               '${_farms.length} ${_farms.length == 1 ? 'Farm' : 'Farms'}'
-              ' - ${_ponds.length} Ponds - ${_ponds.where((p) => p.status == 'Active').length} Active Batches',
+              ' - ${selectedPonds.length} Ponds - $activePondCount Active Batches',
               style: const TextStyle(
                 color: Color(0xFF506579),
                 fontSize: 12,
@@ -219,12 +232,12 @@ class _FarmDashboardPageState extends State<FarmDashboardPage> {
         ),
         children: [
           _SummarySection(
-            pondCount: _ponds.length,
-            activeCount: _ponds.where((pond) => pond.status == 'Active').length,
+            pondCount: selectedPonds.length,
+            activeCount: activePondCount,
             weeklyUpdateCount: _weeklyUpdates.length,
           ),
           const SizedBox(height: 16),
-          if (_ponds.isEmpty)
+          if (selectedPonds.isEmpty)
             const _EmptyPonds()
           else
             LayoutBuilder(
@@ -235,15 +248,15 @@ class _FarmDashboardPageState extends State<FarmDashboardPage> {
                 return GridView.builder(
                   shrinkWrap: true,
                   physics: const NeverScrollableScrollPhysics(),
-                  itemCount: _ponds.length,
+                  itemCount: selectedPonds.length,
                   gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
                     crossAxisCount: columns,
                     crossAxisSpacing: 14,
                     mainAxisSpacing: 14,
-                    mainAxisExtent: 220,
+                    mainAxisExtent: isMobile ? 360 : 300,
                   ),
                   itemBuilder: (_, index) => _PondCard(
-                    pond: _ponds[index],
+                    pond: selectedPonds[index],
                     farmName: _selectedFarm.name,
                   ),
                 );
@@ -265,6 +278,14 @@ class _FarmDashboardPageState extends State<FarmDashboardPage> {
         _farms.add(farm);
         _selectedFarmId = farm.id;
       });
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Farm created successfully.'),
+          backgroundColor: Color(0xFFDCF6E7),
+          behavior: SnackBarBehavior.floating,
+          duration: Duration(seconds: 3),
+        ),
+      );
     }
   }
 
@@ -276,7 +297,18 @@ class _FarmDashboardPageState extends State<FarmDashboardPage> {
           _CreatePondDialog(farms: _farms, selectedFarmId: _selectedFarmId),
     );
     if (pond != null && mounted) {
-      setState(() => _ponds.add(pond));
+      setState(() {
+        _ponds.add(pond);
+        _selectedFarmId = pond.farmId;
+      });
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Pond created successfully.'),
+          backgroundColor: Color(0xFFDCF6E7),
+          behavior: SnackBarBehavior.floating,
+          duration: Duration(seconds: 3),
+        ),
+      );
     }
   }
 
@@ -704,95 +736,339 @@ class _PondCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: const Color(0xFFE1E8F0)),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final compact = constraints.maxWidth < 520;
+        return Container(
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(16),
+            border: Border.all(color: const Color(0xFFE1E8F0)),
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Container(
-                width: 44,
-                height: 44,
-                decoration: BoxDecoration(
-                  color: const Color(0xFFEAF3FF),
-                  borderRadius: BorderRadius.circular(12),
+                height: 62,
+                padding: const EdgeInsets.symmetric(horizontal: 16),
+                decoration: const BoxDecoration(
+                  gradient: LinearGradient(
+                    colors: [
+                      Color(0xFF315BDA),
+                      Color(0xFF1887E8),
+                      Color(0xFF24A5D8),
+                    ],
+                  ),
+                  borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
                 ),
-                child: const Icon(Icons.water, color: Color(0xFF1887E8)),
-              ),
-              const SizedBox(width: 12),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
+                child: Row(
                   children: [
-                    Text(
-                      pond.name,
-                      style: const TextStyle(
-                        color: Color(0xFF102A43),
-                        fontWeight: FontWeight.w800,
-                        fontSize: 16,
+                    Expanded(
+                      child: Text(
+                        pond.name,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 16,
+                          fontWeight: FontWeight.w800,
+                        ),
                       ),
                     ),
-                    Text(
-                      farmName,
-                      style: const TextStyle(
-                        color: Color(0xFF66788A),
-                        fontSize: 12,
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 8,
+                        vertical: 5,
+                      ),
+                      decoration: BoxDecoration(
+                        color: Colors.white24,
+                        borderRadius: BorderRadius.circular(20),
+                      ),
+                      child: Text(
+                        '${pond.area} ${pond.areaUnit}',
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 10,
+                          fontWeight: FontWeight.w700,
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 9,
+                        vertical: 6,
+                      ),
+                      decoration: BoxDecoration(
+                        color: const Color(0xFFEFBF25),
+                        borderRadius: BorderRadius.circular(20),
+                      ),
+                      child: const Text(
+                        'ACTIVE',
+                        style: TextStyle(
+                          color: Color(0xFF102A43),
+                          fontSize: 9,
+                          fontWeight: FontWeight.w900,
+                        ),
                       ),
                     ),
                   ],
                 ),
               ),
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 5),
-                decoration: BoxDecoration(
-                  color: const Color(0xFFE7F7F0),
-                  borderRadius: BorderRadius.circular(20),
-                ),
-                child: Text(
-                  pond.status,
-                  style: const TextStyle(
-                    color: Color(0xFF0A9D70),
-                    fontSize: 11,
-                    fontWeight: FontWeight.w800,
+              Expanded(
+                child: Padding(
+                  padding: const EdgeInsets.all(14),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Row(
+                        children: [
+                          Icon(
+                            Icons.sensors,
+                            size: 14,
+                            color: Color(0xFF315BDA),
+                          ),
+                          SizedBox(width: 6),
+                          Text(
+                            'LIVE SENSORS',
+                            style: TextStyle(
+                              color: Color(0xFF315BDA),
+                              fontSize: 11,
+                              fontWeight: FontWeight.w900,
+                            ),
+                          ),
+                          Spacer(),
+                          Text(
+                            'Live',
+                            style: TextStyle(
+                              color: Color(0xFF00A67E),
+                              fontSize: 11,
+                              fontWeight: FontWeight.w800,
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 8),
+                      compact
+                          ? const Row(
+                              children: [
+                                Expanded(
+                                  child: _SensorTile(
+                                    label: 'PH',
+                                    value: '8.5 ph',
+                                    color: Color(0xFF315BDA),
+                                  ),
+                                ),
+                                SizedBox(width: 6),
+                                Expanded(
+                                  child: _SensorTile(
+                                    label: 'TEMPERATURE',
+                                    value: '25.8 C',
+                                    color: Color(0xFFE06C5C),
+                                  ),
+                                ),
+                                SizedBox(width: 6),
+                                Expanded(
+                                  child: _SensorTile(
+                                    label: 'DO',
+                                    value: '5.46 mg/L',
+                                    color: Color(0xFF1887E8),
+                                  ),
+                                ),
+                                SizedBox(width: 6),
+                                Expanded(
+                                  child: _SensorTile(
+                                    label: 'SALINITY',
+                                    value: '0.062 ppt',
+                                    color: Color(0xFF00A67E),
+                                  ),
+                                ),
+                              ],
+                            )
+                          : const Row(
+                              children: [
+                                Expanded(
+                                  child: _SensorTile(
+                                    label: 'PH',
+                                    value: '8.5 ph',
+                                    color: Color(0xFF315BDA),
+                                  ),
+                                ),
+                                SizedBox(width: 6),
+                                Expanded(
+                                  child: _SensorTile(
+                                    label: 'TEMPERATURE',
+                                    value: '25.8 C',
+                                    color: Color(0xFFE06C5C),
+                                  ),
+                                ),
+                                SizedBox(width: 6),
+                                Expanded(
+                                  child: _SensorTile(
+                                    label: 'DO',
+                                    value: '5.46 mg/L',
+                                    color: Color(0xFF1887E8),
+                                  ),
+                                ),
+                                SizedBox(width: 6),
+                                Expanded(
+                                  child: _SensorTile(
+                                    label: 'SALINITY',
+                                    value: '0.062 ppt',
+                                    color: Color(0xFF00A67E),
+                                  ),
+                                ),
+                              ],
+                            ),
+                      const SizedBox(height: 12),
+                      Container(
+                        height: 72,
+                        padding: const EdgeInsets.symmetric(horizontal: 12),
+                        decoration: BoxDecoration(
+                          color: const Color(0xFFF8FAFD),
+                          borderRadius: BorderRadius.circular(12),
+                          border: Border.all(color: const Color(0xFFE2E8F0)),
+                        ),
+                        child: Row(
+                          children: [
+                            const Expanded(
+                              child: Column(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    'AquaNova Tilapia Batch 01',
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
+                                    style: TextStyle(
+                                      color: Color(0xFF102A43),
+                                      fontSize: 12,
+                                      fontWeight: FontWeight.w800,
+                                    ),
+                                  ),
+                                  SizedBox(height: 4),
+                                  Text(
+                                    'Blue Pearl Culture Zone',
+                                    style: TextStyle(
+                                      color: Color(0xFF66788A),
+                                      fontSize: 10,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                            FilledButton(
+                              onPressed: () {
+                                Navigator.of(context).push(
+                                  MaterialPageRoute<void>(
+                                    builder: (_) => PondDetailPage(
+                                      pondName: pond.name,
+                                      farmName: farmName,
+                                    ),
+                                  ),
+                                );
+                              },
+                              style: FilledButton.styleFrom(
+                                backgroundColor: const Color(0xFF315BDA),
+                                minimumSize: const Size(82, 34),
+                                padding: EdgeInsets.zero,
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(10),
+                                ),
+                              ),
+                              child: const Text(
+                                'View Pond',
+                                style: TextStyle(fontSize: 10),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      const Spacer(),
+                      const Row(
+                        children: [
+                          Expanded(
+                            child: _PondMetric(
+                              label: 'STOCK',
+                              value: '1,158 fish',
+                            ),
+                          ),
+                          SizedBox(width: 6),
+                          Expanded(
+                            child: _PondMetric(
+                              label: 'BIOMASS',
+                              value: '394.88 kg',
+                            ),
+                          ),
+                          SizedBox(width: 6),
+                          Expanded(
+                            child: _PondMetric(
+                              label: 'MEAN WT',
+                              value: '341 g',
+                            ),
+                          ),
+                          SizedBox(width: 6),
+                          Expanded(
+                            child: _PondMetric(label: 'FCR', value: '1.29'),
+                          ),
+                        ],
+                      ),
+                    ],
                   ),
                 ),
               ),
             ],
           ),
-          const SizedBox(height: 18),
-          Row(
-            children: [
-              Expanded(
-                child: _PondMetric(
-                  label: 'Area',
-                  value: '${pond.area} ${pond.areaUnit}',
-                ),
-              ),
-              const SizedBox(width: 12),
-              const Expanded(
-                child: _PondMetric(label: 'Stocking', value: 'Pending'),
-              ),
-            ],
+        );
+      },
+    );
+  }
+}
+
+class _SensorTile extends StatelessWidget {
+  const _SensorTile({
+    required this.label,
+    required this.value,
+    required this.color,
+  });
+
+  final String label;
+  final String value;
+  final Color color;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      height: 52,
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 7),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(10),
+        border: Border.all(color: const Color(0xFFDCE5EF)),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Text(
+            label,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            style: TextStyle(
+              color: color,
+              fontSize: 8,
+              fontWeight: FontWeight.w900,
+            ),
           ),
-          const Spacer(),
-          SizedBox(
-            width: double.infinity,
-            child: OutlinedButton(
-              onPressed: () {},
-              style: OutlinedButton.styleFrom(
-                foregroundColor: const Color(0xFF315BDA),
-                side: const BorderSide(color: Color(0xFFC9D6EC)),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(10),
-                ),
-              ),
-              child: const Text('View pond'),
+          const SizedBox(height: 3),
+          Text(
+            value,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            style: const TextStyle(
+              color: Color(0xFF102A43),
+              fontSize: 10,
+              fontWeight: FontWeight.w800,
             ),
           ),
         ],
@@ -810,8 +1086,8 @@ class _PondMetric extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      height: 54,
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+      height: 50,
+      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 6),
       decoration: BoxDecoration(
         color: const Color(0xFFF7F9FC),
         borderRadius: BorderRadius.circular(10),
@@ -820,18 +1096,29 @@ class _PondMetric extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Text(
-            label,
-            style: const TextStyle(color: Color(0xFF7A8A99), fontSize: 10),
+          FittedBox(
+            fit: BoxFit.scaleDown,
+            alignment: Alignment.centerLeft,
+            child: Text(
+              label,
+              style: const TextStyle(
+                color: Color(0xFF7A8A99),
+                fontSize: 9,
+                fontWeight: FontWeight.w700,
+              ),
+            ),
           ),
-          Text(
-            value,
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
-            style: const TextStyle(
-              color: Color(0xFF102A43),
-              fontSize: 13,
-              fontWeight: FontWeight.w700,
+          const SizedBox(height: 2),
+          FittedBox(
+            fit: BoxFit.scaleDown,
+            alignment: Alignment.centerLeft,
+            child: Text(
+              value,
+              style: const TextStyle(
+                color: Color(0xFF102A43),
+                fontSize: 11,
+                fontWeight: FontWeight.w800,
+              ),
             ),
           ),
         ],
@@ -1294,12 +1581,14 @@ class _CreatePondDialogState extends State<_CreatePondDialog> {
                             Navigator.of(context).pop(
                               Pond(
                                 id: 'pond-${DateTime.now().millisecondsSinceEpoch}',
+                                farmId: _farmId,
                                 name: _name.text.trim(),
                                 area: _area.text.trim().isEmpty
                                     ? '0'
                                     : _area.text.trim(),
                                 areaUnit: _areaUnit,
                                 status: 'Active',
+                                imageName: _imageName,
                               ),
                             );
                           }
@@ -1369,7 +1658,7 @@ class _StockingDialogState extends State<_StockingDialog> {
 
   @override
   Widget build(BuildContext context) {
-    final ponds = widget.ponds;
+    final ponds = widget.ponds.where((pond) => pond.farmId == _farmId).toList();
     return _ScrollableDialog(
       title: 'Fish Stocking Management',
       titleColor: const Color(0xFF102A43),
@@ -1632,6 +1921,7 @@ class _WeeklyUpdateDialogState extends State<_WeeklyUpdateDialog> {
 
   @override
   Widget build(BuildContext context) {
+    final ponds = widget.ponds.where((pond) => pond.farmId == _farmId).toList();
     return _ScrollableDialog(
       title: 'Weekly Update & History',
       child: Form(
@@ -1657,13 +1947,16 @@ class _WeeklyUpdateDialogState extends State<_WeeklyUpdateDialog> {
                               ),
                             )
                             .toList(),
-                        onChanged: (value) => setState(() => _farmId = value!),
+                        onChanged: (value) => setState(() {
+                          _farmId = value!;
+                          _pondId = null;
+                        }),
                       ),
                       _select(
                         label: 'POND *',
                         value: _pondId,
                         hint: 'Select Pond',
-                        items: widget.ponds
+                        items: ponds
                             .map(
                               (pond) => DropdownMenuItem(
                                 value: pond.id,
