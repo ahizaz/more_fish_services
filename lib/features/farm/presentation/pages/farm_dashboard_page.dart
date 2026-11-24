@@ -11,6 +11,7 @@ import '../widgets/farm_dashboard_extras.dart';
 import '../widgets/farm_pond_card.dart';
 import '../widgets/stocking_dialog.dart';
 import '../widgets/weekly_update_dialog.dart';
+import '../widgets/feed_inventory_dialog.dart';
 import 'accounting_dashboard_page.dart';
 
 class FarmDashboardPage extends StatefulWidget {
@@ -123,6 +124,8 @@ class _FarmDashboardPageState extends State<FarmDashboardPage> {
                   builder: (_) => const AccountingDashboardPage(),
                 ),
               ),
+              onManageInventory: _openFeedInventory,
+              feedInStock: controller.feedInStock,
             ),
             const SizedBox(height: 16),
             if (selectedPonds.isEmpty)
@@ -234,6 +237,26 @@ class _FarmDashboardPageState extends State<FarmDashboardPage> {
       await controller.saveWeeklyUpdateApi(update);
       controller.upsertWeeklyUpdate(update);
     }
+  }
+
+  Future<void> _openFeedInventory() async {
+    await showDialog<void>(
+      context: context,
+      barrierDismissible: false,
+      builder: (_) => FeedInventoryDialog(
+        farms: controller.farms,
+        selectedFarmId: controller.selectedFarmId.value,
+        inventories: controller.feedInventories,
+        onCreateInventory: (inventory) async {
+          await controller.saveFeedInventoryApi(inventory);
+          controller.addFeedInventory(inventory);
+        },
+        onAddStock: (addition) async {
+          await controller.saveFeedStockApi(addition);
+          controller.addFeedStock(addition);
+        },
+      ),
+    );
   }
 
   void _logout() => Navigator.of(context).maybePop();

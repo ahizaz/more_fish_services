@@ -63,3 +63,41 @@ class WeeklyUpdate {
   final int mortality;
   final DateTime date;
 }
+
+class FeedInventory {
+  const FeedInventory({
+    required this.id,
+    required this.farmId,
+    required this.farmName,
+    required this.feedType,
+    required this.brand,
+    required this.marketPrice,
+    required this.purchasePrice,
+    required this.quantity,
+    required this.purchaseDate,
+  });
+
+  final String id;
+  final String farmId;
+  final String farmName;
+  final String feedType;
+  final String brand;
+  final double marketPrice;
+  final double purchasePrice;
+  final double quantity;
+  final DateTime purchaseDate;
+}
+
+class FeedStockAddition {
+  const FeedStockAddition({
+    required this.inventoryId,
+    required this.quantity,
+    required this.purchasePrice,
+    required this.purchaseDate,
+  });
+
+  final String inventoryId;
+  final double quantity;
+  final double purchasePrice;
+  final DateTime purchaseDate;
+}

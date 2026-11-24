@@ -1,9 +1,16 @@
 import 'package:flutter/material.dart';
 
 class FarmDashboardExtras extends StatelessWidget {
-  const FarmDashboardExtras({super.key, this.onOpenAccounting});
+  const FarmDashboardExtras({
+    super.key,
+    this.onOpenAccounting,
+    this.onManageInventory,
+    this.feedInStock = 0,
+  });
 
   final VoidCallback? onOpenAccounting;
+  final VoidCallback? onManageInventory;
+  final double feedInStock;
 
   @override
   Widget build(BuildContext context) {
@@ -13,7 +20,10 @@ class FarmDashboardExtras extends StatelessWidget {
         const SizedBox(height: 14),
         const _PerformanceCard(),
         const SizedBox(height: 14),
-        const _FeedInventoryCard(),
+        _FeedInventoryCard(
+          onManageInventory: onManageInventory,
+          feedInStock: feedInStock,
+        ),
       ],
     );
   }
@@ -238,7 +248,13 @@ class _PerformanceGradient extends StatelessWidget {
 }
 
 class _FeedInventoryCard extends StatelessWidget {
-  const _FeedInventoryCard();
+  const _FeedInventoryCard({
+    required this.onManageInventory,
+    required this.feedInStock,
+  });
+
+  final VoidCallback? onManageInventory;
+  final double feedInStock;
 
   @override
   Widget build(BuildContext context) {
@@ -274,7 +290,7 @@ class _FeedInventoryCard extends StatelessWidget {
             ],
           ),
           const SizedBox(height: 16),
-          const Row(
+          Row(
             children: [
               Expanded(
                 child: _InventoryValue(
@@ -287,7 +303,9 @@ class _FeedInventoryCard extends StatelessWidget {
               Expanded(
                 child: _InventoryValue(
                   title: 'In Stock (F9)',
-                  value: '651',
+                  value: feedInStock.toStringAsFixed(
+                    feedInStock.truncateToDouble() == feedInStock ? 0 : 1,
+                  ),
                   unit: 'kg',
                 ),
               ),
@@ -329,7 +347,7 @@ class _FeedInventoryCard extends StatelessWidget {
             width: double.infinity,
             height: 48,
             child: FilledButton(
-              onPressed: null,
+              onPressed: onManageInventory,
               style: FilledButton.styleFrom(
                 backgroundColor: const Color(0xFF397EDB),
                 disabledBackgroundColor: const Color(0xFF397EDB),

@@ -54,6 +54,8 @@ class FarmDashboardController extends GetxController {
     ),
   ).obs;
 
+  final RxList<FeedInventory> feedInventories = <FeedInventory>[].obs;
+
   final RxnString selectedFarmId = RxnString();
 
   @override
@@ -103,6 +105,32 @@ class FarmDashboardController extends GetxController {
     }
   }
 
+  void addFeedInventory(FeedInventory inventory) {
+    feedInventories.insert(0, inventory);
+  }
+
+  void addFeedStock(FeedStockAddition addition) {
+    final index = feedInventories.indexWhere(
+      (item) => item.id == addition.inventoryId,
+    );
+    if (index < 0) return;
+    final inventory = feedInventories[index];
+    feedInventories[index] = FeedInventory(
+      id: inventory.id,
+      farmId: inventory.farmId,
+      farmName: inventory.farmName,
+      feedType: inventory.feedType,
+      brand: inventory.brand,
+      marketPrice: inventory.marketPrice,
+      purchasePrice: addition.purchasePrice,
+      quantity: inventory.quantity + addition.quantity,
+      purchaseDate: addition.purchaseDate,
+    );
+  }
+
+  double get feedInStock =>
+      feedInventories.fold(0, (sum, inventory) => sum + inventory.quantity);
+
   Future<void> loadDashboard() async {
     // API integration point: load farms, ponds, stockings, and weekly updates.
   }
@@ -111,4 +139,6 @@ class FarmDashboardController extends GetxController {
   Future<bool> createPondApi(Pond pond) async => true;
   Future<bool> saveStockingApi(Stocking stocking) async => true;
   Future<bool> saveWeeklyUpdateApi(WeeklyUpdate update) async => true;
+  Future<bool> saveFeedInventoryApi(FeedInventory inventory) async => true;
+  Future<bool> saveFeedStockApi(FeedStockAddition addition) async => true;
 }
