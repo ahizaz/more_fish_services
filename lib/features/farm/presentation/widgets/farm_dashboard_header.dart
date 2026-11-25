@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:more_fish/core/localization/app_translations.dart';
 
 import '../../models/farm_models.dart';
 
@@ -119,7 +120,7 @@ class FarmDashboardMobileActions extends StatelessWidget {
             ),
             const SizedBox(width: 6),
             IconButton.filled(
-              tooltip: 'Create farm',
+              tooltip: appText('Create farm'),
               onPressed: onCreateFarm,
               style: IconButton.styleFrom(
                 backgroundColor: const Color(0xFFEAF3FF),
@@ -129,7 +130,7 @@ class FarmDashboardMobileActions extends StatelessWidget {
             ),
             const SizedBox(width: 4),
             IconButton.filled(
-              tooltip: 'Create pond',
+              tooltip: appText('Create pond'),
               onPressed: onCreatePond,
               style: IconButton.styleFrom(
                 backgroundColor: const Color(0xFFEAF3FF),
@@ -200,7 +201,7 @@ class _FarmDropdown extends StatelessWidget {
                 (farm) => DropdownMenuItem(
                   value: farm.id,
                   child: Text(
-                    farm.name,
+                    appText(farm.name),
                     overflow: TextOverflow.ellipsis,
                     style: const TextStyle(
                       color: Color(0xFF102A43),
@@ -248,7 +249,7 @@ class _ActionButton extends StatelessWidget {
         ),
         textStyle: const TextStyle(fontWeight: FontWeight.w800),
       ),
-      child: Text(label),
+      child: Text(appText(label)),
     );
   }
 }

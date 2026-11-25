@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 
 import '../../controllers/login_controller.dart';
 
@@ -49,7 +50,7 @@ class _LoginPageState extends State<LoginPage> {
                     Align(
                       alignment: Alignment.centerRight,
                       child: IconButton(
-                        tooltip: 'Close login',
+                        tooltip: 'Close login'.tr,
                         onPressed: () => Navigator.of(context).pop(),
                         icon: const Icon(Icons.close),
                       ),
@@ -61,8 +62,8 @@ class _LoginPageState extends State<LoginPage> {
                       fit: BoxFit.contain,
                     ),
                     const SizedBox(height: 20),
-                    const Text(
-                      'Login',
+                    Text(
+                      'Login'.tr,
                       style: TextStyle(
                         color: Color(0xFF16823B),
                         fontSize: 24,
@@ -75,7 +76,7 @@ class _LoginPageState extends State<LoginPage> {
                       keyboardType: TextInputType.emailAddress,
                       textInputAction: TextInputAction.next,
                       decoration: InputDecoration(
-                        labelText: 'Email or Phone',
+                        labelText: 'Email or Phone'.tr,
                         border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(10),
                         ),
@@ -88,14 +89,14 @@ class _LoginPageState extends State<LoginPage> {
                       obscureText: !_controller.showPassword,
                       textInputAction: TextInputAction.done,
                       decoration: InputDecoration(
-                        labelText: 'Password',
+                        labelText: 'Password'.tr,
                         border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(10),
                         ),
                         suffixIcon: IconButton(
                           tooltip: _controller.showPassword
-                              ? 'Hide password'
-                              : 'Show password',
+                              ? 'Hide password'.tr
+                              : 'Show password'.tr,
                           icon: Icon(
                             _controller.showPassword
                                 ? Icons.visibility
@@ -106,10 +107,10 @@ class _LoginPageState extends State<LoginPage> {
                       ),
                       validator: (value) {
                         if (value == null || value.isEmpty) {
-                          return 'Enter your password';
+                          return 'Enter your password'.tr;
                         }
                         if (value.length < 5) {
-                          return 'Password must be at least 5 characters';
+                          return 'Password must be at least 5 characters'.tr;
                         }
                         return null;
                       },
@@ -137,10 +138,7 @@ class _LoginPageState extends State<LoginPage> {
                                   color: Colors.white,
                                 ),
                               )
-                            : const Text(
-                                'Login',
-                                style: TextStyle(fontSize: 18),
-                              ),
+                            : Text('Login'.tr, style: TextStyle(fontSize: 18)),
                       ),
                     ),
                   ],
@@ -156,13 +154,13 @@ class _LoginPageState extends State<LoginPage> {
   String? _validateEmailOrPhone(String? value) {
     final input = value?.trim() ?? '';
     if (input.isEmpty) {
-      return 'Enter your email or phone';
+      return 'Enter your email or phone'.tr;
     }
 
     final emailPattern = RegExp(r'^[\w.-]+@([\w-]+\.)+[\w-]{2,}$');
     final phonePattern = RegExp(r'^\+?[0-9\s()-]{6,}$');
     if (!emailPattern.hasMatch(input) && !phonePattern.hasMatch(input)) {
-      return 'Enter a valid email or phone';
+      return 'Enter a valid email or phone'.tr;
     }
     return null;
   }

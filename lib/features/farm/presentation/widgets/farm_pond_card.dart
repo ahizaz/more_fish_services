@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:more_fish/core/localization/app_translations.dart';
 
 import '../../models/farm_models.dart';
 import '../pages/pond_detail_page.dart';
@@ -39,7 +40,7 @@ class FarmPondCard extends StatelessWidget {
                   children: [
                     Expanded(
                       child: Text(
-                        pond.name,
+                        appText(pond.name),
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                         style: const TextStyle(
@@ -59,7 +60,7 @@ class FarmPondCard extends StatelessWidget {
                         borderRadius: BorderRadius.circular(20),
                       ),
                       child: Text(
-                        '${pond.area} ${pond.areaUnit}',
+                        '${pond.area} ${appText(pond.areaUnit)}',
                         style: const TextStyle(
                           color: Colors.white,
                           fontSize: 10,
@@ -77,8 +78,8 @@ class FarmPondCard extends StatelessWidget {
                         color: const Color(0xFFEFBF25),
                         borderRadius: BorderRadius.circular(20),
                       ),
-                      child: const Text(
-                        'ACTIVE',
+                      child: Text(
+                        appText('ACTIVE'),
                         style: TextStyle(
                           color: Color(0xFF102A43),
                           fontSize: 9,
@@ -95,7 +96,7 @@ class FarmPondCard extends StatelessWidget {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const Row(
+                      Row(
                         children: [
                           Icon(
                             Icons.sensors,
@@ -104,7 +105,7 @@ class FarmPondCard extends StatelessWidget {
                           ),
                           SizedBox(width: 6),
                           Text(
-                            'LIVE SENSORS',
+                            appText('LIVE SENSORS'),
                             style: TextStyle(
                               color: Color(0xFF315BDA),
                               fontSize: 11,
@@ -113,7 +114,7 @@ class FarmPondCard extends StatelessWidget {
                           ),
                           Spacer(),
                           Text(
-                            'Live',
+                            appText('Live'),
                             style: TextStyle(
                               color: Color(0xFF00A67E),
                               fontSize: 11,
@@ -123,7 +124,7 @@ class FarmPondCard extends StatelessWidget {
                         ],
                       ),
                       const SizedBox(height: 8),
-                      const Row(
+                      Row(
                         children: [
                           Expanded(
                             child: _SensorTile(
@@ -169,13 +170,13 @@ class FarmPondCard extends StatelessWidget {
                         ),
                         child: Row(
                           children: [
-                            const Expanded(
+                            Expanded(
                               child: Column(
                                 mainAxisAlignment: MainAxisAlignment.center,
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
                                   Text(
-                                    'AquaNova Tilapia Batch 01',
+                                    appText('AquaNova Tilapia Batch 01'),
                                     maxLines: 1,
                                     overflow: TextOverflow.ellipsis,
                                     style: TextStyle(
@@ -186,7 +187,7 @@ class FarmPondCard extends StatelessWidget {
                                   ),
                                   SizedBox(height: 4),
                                   Text(
-                                    'Blue Pearl Culture Zone',
+                                    appText('Blue Pearl Culture Zone'),
                                     style: TextStyle(
                                       color: Color(0xFF66788A),
                                       fontSize: 10,
@@ -214,8 +215,8 @@ class FarmPondCard extends StatelessWidget {
                                   borderRadius: BorderRadius.circular(10),
                                 ),
                               ),
-                              child: const Text(
-                                'View Pond',
+                              child: Text(
+                                appText('View Pond'),
                                 style: TextStyle(fontSize: 10),
                               ),
                             ),
@@ -223,7 +224,7 @@ class FarmPondCard extends StatelessWidget {
                         ),
                       ),
                       const Spacer(),
-                      const Row(
+                      Row(
                         children: [
                           Expanded(
                             child: _PondMetric(
@@ -289,7 +290,7 @@ class _SensorTile extends StatelessWidget {
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           Text(
-            label,
+            appText(label),
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
             style: TextStyle(
@@ -300,7 +301,7 @@ class _SensorTile extends StatelessWidget {
           ),
           const SizedBox(height: 3),
           Text(
-            value,
+            appText(value),
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
             style: const TextStyle(
@@ -338,7 +339,7 @@ class _PondMetric extends StatelessWidget {
             fit: BoxFit.scaleDown,
             alignment: Alignment.centerLeft,
             child: Text(
-              label,
+              appText(label),
               style: const TextStyle(
                 color: Color(0xFF7A8A99),
                 fontSize: 9,
@@ -351,7 +352,7 @@ class _PondMetric extends StatelessWidget {
             fit: BoxFit.scaleDown,
             alignment: Alignment.centerLeft,
             child: Text(
-              value,
+              appText(value),
               style: const TextStyle(
                 color: Color(0xFF102A43),
                 fontSize: 11,
@@ -378,13 +379,13 @@ class FarmEmptyPonds extends StatelessWidget {
         borderRadius: BorderRadius.circular(16),
         border: Border.all(color: const Color(0xFFE1E8F0)),
       ),
-      child: const Column(
+      child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           Icon(Icons.water, size: 44, color: Color(0xFF9FB4C7)),
           SizedBox(height: 10),
           Text(
-            'No ponds added yet',
+            appText('No ponds added yet'),
             style: TextStyle(
               color: Color(0xFF102A43),
               fontWeight: FontWeight.w700,

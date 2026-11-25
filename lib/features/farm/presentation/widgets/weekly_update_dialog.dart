@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:more_fish/core/localization/app_translations.dart';
 
 import '../../models/farm_models.dart';
 import 'dashboard_dialog_helpers.dart';
@@ -70,7 +71,7 @@ class _WeeklyUpdateDialogState extends State<WeeklyUpdateDialog> {
                             .map(
                               (farm) => DropdownMenuItem(
                                 value: farm.id,
-                                child: Text(farm.name),
+                                child: Text(appText(farm.name)),
                               ),
                             )
                             .toList(),
@@ -87,7 +88,7 @@ class _WeeklyUpdateDialogState extends State<WeeklyUpdateDialog> {
                             .map(
                               (pond) => DropdownMenuItem(
                                 value: pond.id,
-                                child: Text(pond.name),
+                                child: Text(appText(pond.name)),
                               ),
                             )
                             .toList(),
@@ -103,14 +104,14 @@ class _WeeklyUpdateDialogState extends State<WeeklyUpdateDialog> {
                         label: 'SPECIES *',
                         value: null,
                         hint: 'Select Species',
-                        items: const [
+                        items: [
                           DropdownMenuItem(
                             value: 'Tilapia',
-                            child: Text('Tilapia'),
+                            child: Text(appText('Tilapia')),
                           ),
                           DropdownMenuItem(
                             value: 'Catfish',
-                            child: Text('Catfish'),
+                            child: Text(appText('Catfish')),
                           ),
                         ],
                         onChanged: (_) {},
@@ -154,10 +155,10 @@ class _WeeklyUpdateDialogState extends State<WeeklyUpdateDialog> {
                     ],
                   ),
                   const Divider(height: 26, color: Colors.white),
-                  const Align(
+                  Align(
                     alignment: Alignment.centerLeft,
                     child: Text(
-                      'FEED USAGE (OPTIONAL)',
+                      appText('FEED USAGE (OPTIONAL)'),
                       style: TextStyle(
                         color: Color(0xFF344A65),
                         fontSize: 20,
@@ -172,10 +173,10 @@ class _WeeklyUpdateDialogState extends State<WeeklyUpdateDialog> {
                         label: '',
                         value: null,
                         hint: 'Select Feed Type',
-                        items: const [
+                        items: [
                           DropdownMenuItem(
                             value: 'Pellets',
-                            child: Text('Pellets'),
+                            child: Text(appText('Pellets')),
                           ),
                         ],
                         onChanged: (_) {},
@@ -193,7 +194,7 @@ class _WeeklyUpdateDialogState extends State<WeeklyUpdateDialog> {
                     child: FilledButton(
                       onPressed: _save,
                       style: primaryButtonStyle(const Color(0xFF1D63F5)),
-                      child: const Text('Submit Update'),
+                      child: Text(appText('Submit Update')),
                     ),
                   ),
                 ],
@@ -201,7 +202,9 @@ class _WeeklyUpdateDialogState extends State<WeeklyUpdateDialog> {
             ),
             const SizedBox(height: 18),
             HistorySection(
-              title: '2. WEEKLY UPDATES HISTORY (${widget.updates.length})',
+              title: appText(
+                '${appText('Weekly Updates History')} (${widget.updates.length})',
+              ),
               headers: const [
                 'DATE',
                 'BATCH ID',
@@ -262,7 +265,7 @@ class _WeeklyUpdateDialogState extends State<WeeklyUpdateDialog> {
         isExpanded: true,
         isDense: true,
         iconSize: 20,
-        hint: hint == null ? null : Text(hint),
+        hint: hint == null ? null : Text(appText(hint)),
         decoration: dialogFieldDecoration(null),
         items: items,
         selectedItemBuilder: (context) => [

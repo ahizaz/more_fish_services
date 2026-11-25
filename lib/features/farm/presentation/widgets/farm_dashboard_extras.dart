@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:more_fish/core/localization/app_translations.dart';
 
 class FarmDashboardExtras extends StatelessWidget {
   const FarmDashboardExtras({
@@ -74,8 +75,8 @@ class _FinancialHubCard extends StatelessWidget {
                       color: const Color(0x33D46A00),
                       borderRadius: BorderRadius.circular(20),
                     ),
-                    child: const Text(
-                      'FINANCIAL HUB',
+                    child: Text(
+                      appText('FINANCIAL HUB'),
                       style: TextStyle(
                         color: Color(0xFF5B3A00),
                         fontSize: 11,
@@ -85,8 +86,8 @@ class _FinancialHubCard extends StatelessWidget {
                     ),
                   ),
                   const SizedBox(height: 5),
-                  const Text(
-                    'Farm Accounting',
+                  Text(
+                    appText('Farm Accounting'),
                     style: TextStyle(
                       color: Color(0xFF102A43),
                       fontSize: 24,
@@ -111,11 +112,11 @@ class _FinancialHubCard extends StatelessWidget {
                   borderRadius: BorderRadius.circular(12),
                 ),
               ),
-              child: const Row(
+              child: Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Text(
-                    'Open Accounting Dashboard',
+                    appText('Open Accounting Dashboard'),
                     style: TextStyle(fontWeight: FontWeight.w800),
                   ),
                   SizedBox(width: 8),
@@ -146,13 +147,13 @@ class _PerformanceCard extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Row(
+          Row(
             children: [
               Icon(Icons.show_chart, color: Color(0xFFFF8A24), size: 28),
               SizedBox(width: 10),
               Expanded(
                 child: Text(
-                  'Farm Performance Score',
+                  appText('Farm Performance Score'),
                   style: TextStyle(
                     color: Color(0xFF102A43),
                     fontSize: 21,
@@ -174,8 +175,8 @@ class _PerformanceCard extends StatelessWidget {
             ],
           ),
           const SizedBox(height: 12),
-          const Text(
-            '+5',
+          Text(
+            appText('+5'),
             style: TextStyle(
               color: Color(0xFF102A43),
               fontSize: 16,
@@ -183,8 +184,8 @@ class _PerformanceCard extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 7),
-          const Text(
-            'If sold today valuation benchmark',
+          Text(
+            appText('If sold today valuation benchmark'),
             style: TextStyle(
               color: Color(0xFF344A65),
               fontSize: 13,
@@ -194,12 +195,18 @@ class _PerformanceCard extends StatelessWidget {
           const SizedBox(height: 10),
           const SizedBox(height: 10, child: _PerformanceGradient()),
           const SizedBox(height: 5),
-          const Row(
+          Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text('-5', style: TextStyle(fontWeight: FontWeight.w700)),
-              Text('0', style: TextStyle(fontWeight: FontWeight.w700)),
-              Text('+5', style: TextStyle(fontWeight: FontWeight.w700)),
+              Text(
+                appText('-5'),
+                style: TextStyle(fontWeight: FontWeight.w700),
+              ),
+              Text(appText('0'), style: TextStyle(fontWeight: FontWeight.w700)),
+              Text(
+                appText('+5'),
+                style: TextStyle(fontWeight: FontWeight.w700),
+              ),
             ],
           ),
         ],
@@ -268,7 +275,7 @@ class _FeedInventoryCard extends StatelessWidget {
       ),
       child: Column(
         children: [
-          const Row(
+          Row(
             children: [
               CircleAvatar(
                 radius: 21,
@@ -280,7 +287,7 @@ class _FeedInventoryCard extends StatelessWidget {
               ),
               SizedBox(width: 10),
               Text(
-                'Feed Inventory',
+                appText('Feed Inventory'),
                 style: TextStyle(
                   color: Color(0xFF102A43),
                   fontSize: 21,
@@ -295,14 +302,14 @@ class _FeedInventoryCard extends StatelessWidget {
               Expanded(
                 child: _InventoryValue(
                   title: 'Used Feed',
-                  value: '349',
+                  value: appText('349'),
                   unit: 'kg',
                 ),
               ),
               SizedBox(width: 10),
               Expanded(
                 child: _InventoryValue(
-                  title: 'In Stock (F9)',
+                  title: appText('In Stock (F9)'),
                   value: feedInStock.toStringAsFixed(
                     feedInStock.truncateToDouble() == feedInStock ? 0 : 1,
                   ),
@@ -356,11 +363,11 @@ class _FeedInventoryCard extends StatelessWidget {
                   borderRadius: BorderRadius.circular(12),
                 ),
               ),
-              child: const Row(
+              child: Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Text(
-                    'Manage Inventory',
+                    appText('Manage Inventory'),
                     style: TextStyle(fontWeight: FontWeight.w800),
                   ),
                   SizedBox(width: 8),
@@ -401,7 +408,7 @@ class _InventoryValue extends StatelessWidget {
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           Text(
-            title,
+            appText(title),
             style: const TextStyle(
               color: Color(0xFF344A65),
               fontSize: 12,
@@ -409,7 +416,7 @@ class _InventoryValue extends StatelessWidget {
             ),
           ),
           Text(
-            value,
+            appText(value),
             style: const TextStyle(
               color: Color(0xFF102A43),
               fontSize: 18,
@@ -417,7 +424,7 @@ class _InventoryValue extends StatelessWidget {
             ),
           ),
           Text(
-            unit,
+            appText(unit),
             style: const TextStyle(
               color: Color(0xFF344A65),
               fontSize: 12,

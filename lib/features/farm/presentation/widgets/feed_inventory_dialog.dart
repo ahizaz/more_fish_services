@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:more_fish/core/localization/app_translations.dart';
 
 import '../../models/farm_models.dart';
 import 'dashboard_dialog_helpers.dart';
@@ -94,12 +95,12 @@ class _FeedInventoryDialogState extends State<FeedInventoryDialog> {
                         ),
                       ),
                       const SizedBox(width: 10),
-                      const Expanded(
+                      Expanded(
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
-                              'Feed Inventory',
+                              appText('Feed Inventory'),
                               style: TextStyle(
                                 color: Color(0xFF102A43),
                                 fontSize: 21,
@@ -107,7 +108,9 @@ class _FeedInventoryDialogState extends State<FeedInventoryDialog> {
                               ),
                             ),
                             Text(
-                              'Create a feed once, then add new stock whenever you purchase it again',
+                              appText(
+                                'Create a feed once, then add new stock whenever you purchase it again',
+                              ),
                               style: TextStyle(
                                 color: Color(0xFF607690),
                                 fontSize: 12,
@@ -138,7 +141,7 @@ class _FeedInventoryDialogState extends State<FeedInventoryDialog> {
                                       : const Color(0xFF607690),
                                 ),
                               ),
-                          child: const Text('+ Add New Feed'),
+                          child: Text(appText('+ Add New Feed')),
                         ),
                       ),
                       const SizedBox(width: 12),
@@ -157,7 +160,7 @@ class _FeedInventoryDialogState extends State<FeedInventoryDialog> {
                                       : const Color(0xFF607690),
                                 ),
                               ),
-                          child: const Text('+ Add Stock'),
+                          child: Text(appText('+ Add Stock')),
                         ),
                       ),
                     ],
@@ -179,9 +182,11 @@ class _FeedInventoryDialogState extends State<FeedInventoryDialog> {
                 onPressed: _showAddStock ? _addStock : _createFeed,
                 style: primaryButtonStyle(const Color(0xFF397EDB)),
                 child: Text(
-                  _showAddStock
-                      ? 'Add Stock to Existing Feed'
-                      : 'Create Feed & Add Initial Stock',
+                  appText(
+                    _showAddStock
+                        ? 'Add Stock to Existing Feed'
+                        : 'Create Feed & Add Initial Stock',
+                  ),
                 ),
               ),
             ),
@@ -202,7 +207,7 @@ class _FeedInventoryDialogState extends State<FeedInventoryDialog> {
         decoration: dialogFieldDecoration(null),
         items: [
           for (final farm in widget.farms)
-            DropdownMenuItem(value: farm.id, child: Text(farm.name)),
+            DropdownMenuItem(value: farm.id, child: Text(appText(farm.name))),
         ],
         onChanged: (value) {
           if (value == null) return;
@@ -288,17 +293,19 @@ class _FeedInventoryDialogState extends State<FeedInventoryDialog> {
         child: DropdownButtonFormField<String>(
           initialValue: _selectedInventoryId,
           isExpanded: true,
-          hint: const Text('Choose a feed type'),
+          hint: Text(appText('Choose a feed type')),
           decoration: dialogFieldDecoration(null),
           items: [
             for (final inventory in inventoryItems)
               DropdownMenuItem(
                 value: inventory.id,
-                child: Text('${inventory.feedType} - ${inventory.brand}'),
+                child: Text(
+                  '${appText(inventory.feedType)} - ${appText(inventory.brand)}',
+                ),
               ),
           ],
           onChanged: (value) => setState(() => _selectedInventoryId = value),
-          validator: (value) => value == null ? 'Required' : null,
+          validator: (value) => value == null ? appText('Required') : null,
         ),
       ),
       _textField(
@@ -383,8 +390,8 @@ class _FeedInventoryDialogState extends State<FeedInventoryDialog> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text(
-            '3. Feed Inventory List',
+          Text(
+            appText('3. Feed Inventory List'),
             style: TextStyle(
               color: Color(0xFF102A43),
               fontSize: 22,
@@ -393,10 +400,10 @@ class _FeedInventoryDialogState extends State<FeedInventoryDialog> {
           ),
           const SizedBox(height: 12),
           if (inventories.isEmpty)
-            const Padding(
-              padding: EdgeInsets.symmetric(vertical: 18),
+            Padding(
+              padding: const EdgeInsets.symmetric(vertical: 18),
               child: Text(
-                'No feed inventory added yet.',
+                appText('No feed inventory added yet.'),
                 style: TextStyle(
                   color: Color(0xFF607690),
                   fontWeight: FontWeight.w600,
@@ -411,34 +418,34 @@ class _FeedInventoryDialogState extends State<FeedInventoryDialog> {
                 dataRowMinHeight: 48,
                 dataRowMaxHeight: 48,
                 columnSpacing: 30,
-                columns: const [
+                columns: [
                   DataColumn(
                     label: Text(
-                      '#',
+                      appText('#'),
                       style: TextStyle(fontWeight: FontWeight.w900),
                     ),
                   ),
                   DataColumn(
                     label: Text(
-                      'FEED TYPE',
+                      appText('FEED TYPE'),
                       style: TextStyle(fontWeight: FontWeight.w900),
                     ),
                   ),
                   DataColumn(
                     label: Text(
-                      'BRAND',
+                      appText('BRAND'),
                       style: TextStyle(fontWeight: FontWeight.w900),
                     ),
                   ),
                   DataColumn(
                     label: Text(
-                      'PRICE / KG',
+                      appText('PRICE / KG'),
                       style: TextStyle(fontWeight: FontWeight.w900),
                     ),
                   ),
                   DataColumn(
                     label: Text(
-                      'AVAILABLE STOCK',
+                      appText('AVAILABLE STOCK'),
                       style: TextStyle(fontWeight: FontWeight.w900),
                     ),
                   ),
@@ -447,16 +454,22 @@ class _FeedInventoryDialogState extends State<FeedInventoryDialog> {
                   for (var i = 0; i < inventories.length; i++)
                     DataRow(
                       cells: [
-                        DataCell(Text('${i + 1}')),
-                        DataCell(Text(inventories[i].feedType)),
-                        DataCell(Text(inventories[i].brand)),
+                        DataCell(Text(appText('${i + 1}'))),
+                        DataCell(Text(appText(inventories[i].feedType))),
+                        DataCell(Text(appText(inventories[i].brand))),
                         DataCell(
                           Text(
-                            '৳${_formatNumber(inventories[i].purchasePrice)}',
+                            appText(
+                              '৳${_formatNumber(inventories[i].purchasePrice)}',
+                            ),
                           ),
                         ),
                         DataCell(
-                          Text('${_formatNumber(inventories[i].quantity)} kg'),
+                          Text(
+                            appText(
+                              '${_formatNumber(inventories[i].quantity)} kg',
+                            ),
+                          ),
                         ),
                       ],
                     ),

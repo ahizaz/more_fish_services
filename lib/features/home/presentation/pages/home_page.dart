@@ -1,6 +1,8 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
+import 'package:more_fish/core/localization/app_translations.dart';
 
 import '../../../../core/widgets/common_container.dart';
 import '../../../farm/presentation/pages/farm_dashboard_page.dart';
@@ -37,9 +39,16 @@ class _HomePageState extends State<HomePage> {
                 ),
               ),
             )
+          : _selectedIndex == 3
+          ? _MorePage(onLogout: () => setState(() => _isLoggedIn = false))
           : Center(
               child: Text(
-                ['Home', 'Notifications', 'Profile', 'More'][_selectedIndex],
+                [
+                  'Home'.tr,
+                  'Notifications'.tr,
+                  'Profile'.tr,
+                  'More'.tr,
+                ][_selectedIndex],
                 style: const TextStyle(
                   color: Color(0xFF111111),
                   fontSize: 20,
@@ -56,14 +65,23 @@ class _HomePageState extends State<HomePage> {
         unselectedItemColor: Colors.blueGrey.shade300,
         elevation: 4,
         selectedLabelStyle: const TextStyle(fontWeight: FontWeight.bold),
-        items: const [
-          BottomNavigationBarItem(icon: Icon(Icons.home), label: 'home'),
+        items: [
           BottomNavigationBarItem(
-            icon: Icon(Icons.notifications),
-            label: 'Notifications',
+            icon: const Icon(Icons.home),
+            label: 'Home'.tr,
           ),
-          BottomNavigationBarItem(icon: Icon(Icons.person), label: 'Profile'),
-          BottomNavigationBarItem(icon: Icon(Icons.menu), label: 'More'),
+          BottomNavigationBarItem(
+            icon: const Icon(Icons.notifications),
+            label: 'Notifications'.tr,
+          ),
+          BottomNavigationBarItem(
+            icon: const Icon(Icons.person),
+            label: 'Profile'.tr,
+          ),
+          BottomNavigationBarItem(
+            icon: const Icon(Icons.menu),
+            label: 'More'.tr,
+          ),
         ],
       ),
     );
@@ -84,6 +102,102 @@ class _HomePageState extends State<HomePage> {
     Navigator.of(
       context,
     ).push(MaterialPageRoute<void>(builder: destinationBuilder));
+  }
+}
+
+class _MorePage extends StatelessWidget {
+  const _MorePage({required this.onLogout});
+
+  final VoidCallback onLogout;
+
+  @override
+  Widget build(BuildContext context) {
+    return SafeArea(
+      child: Padding(
+        padding: const EdgeInsets.all(24),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            const SizedBox(height: 8),
+            OutlinedButton.icon(
+              onPressed: () => _showSettings(context),
+              icon: const Icon(Icons.settings_outlined),
+              label: Text('Settings'.tr),
+            ),
+            const SizedBox(height: 12),
+            OutlinedButton.icon(
+              onPressed: () => _confirmLogout(context),
+              icon: const Icon(Icons.logout),
+              label: Text('Logout'.tr),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Future<void> _showSettings(BuildContext context) async {
+    await showDialog<void>(
+      context: context,
+      builder: (dialogContext) => AlertDialog(
+        title: Text('Settings'.tr),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text('Language'.tr),
+            const SizedBox(height: 12),
+            Row(
+              children: [
+                Expanded(
+                  child: OutlinedButton(
+                    onPressed: () => Get.updateLocale(const Locale('en')),
+                    child: Text('English'.tr),
+                  ),
+                ),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: OutlinedButton(
+                    onPressed: () => Get.updateLocale(const Locale('bn')),
+                    child: Text('Bangla'.tr),
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(dialogContext).pop(),
+            child: Text('Cancel'.tr),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Future<void> _confirmLogout(BuildContext context) async {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (dialogContext) => AlertDialog(
+        content: Text('Are you sure you want to log out?'.tr),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(dialogContext).pop(false),
+            child: Text('Cancel'.tr),
+          ),
+          TextButton(
+            onPressed: () => Navigator.of(dialogContext).pop(true),
+            child: Text('Logout'.tr),
+          ),
+        ],
+      ),
+    );
+    if (confirmed != true || !context.mounted) return;
+    onLogout();
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(SnackBar(content: Text('Logged out successfully'.tr)));
   }
 }
 
@@ -133,8 +247,8 @@ class _TitleCard extends StatelessWidget {
         borderRadius: BorderRadius.circular(8),
         border: Border.all(color: const Color(0xFFE2EAEE)),
       ),
-      child: const Text(
-        'DMA Technologies More Fish Services',
+      child: Text(
+        'DMA Technologies More Fish Services'.tr,
         textAlign: TextAlign.center,
         style: TextStyle(
           color: Color(0xFF111111),
@@ -178,22 +292,22 @@ class _WeatherHeaderState extends State<_WeatherHeader> {
   }
 
   String get _date {
-    const months = [
-      'Jan',
-      'Feb',
-      'Mar',
-      'Apr',
-      'May',
-      'Jun',
-      'Jul',
-      'Aug',
-      'Sep',
-      'Oct',
-      'Nov',
-      'Dec',
+    final months = [
+      'Jan'.tr,
+      'Feb'.tr,
+      'Mar'.tr,
+      'Apr'.tr,
+      'May'.tr,
+      'Jun'.tr,
+      'Jul'.tr,
+      'Aug'.tr,
+      'Sep'.tr,
+      'Oct'.tr,
+      'Nov'.tr,
+      'Dec'.tr,
     ];
     final day = _now.day.toString().padLeft(2, '0');
-    return '$day-${months[_now.month - 1]}-${_now.year}';
+    return appText('$day-${months[_now.month - 1]}-${_now.year}');
   }
 
   String get _time {
@@ -202,8 +316,8 @@ class _WeatherHeaderState extends State<_WeatherHeader> {
         : (_now.hour > 12 ? _now.hour - 12 : _now.hour);
     final minute = _now.minute.toString().padLeft(2, '0');
     final second = _now.second.toString().padLeft(2, '0');
-    final period = _now.hour >= 12 ? 'PM' : 'AM';
-    return '$hour:$minute:$second $period';
+    final period = _now.hour >= 12 ? 'PM'.tr : 'AM'.tr;
+    return appText('$hour:$minute:$second $period');
   }
 
   @override
@@ -234,7 +348,7 @@ class _WeatherHeaderState extends State<_WeatherHeader> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'MoreFish - মাছের...',
+                  'MoreFish - Fish Services'.tr,
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                   style: TextStyle(
@@ -255,7 +369,7 @@ class _WeatherHeaderState extends State<_WeatherHeader> {
               ],
             ),
           ),
-          const Column(
+          Column(
             mainAxisAlignment: MainAxisAlignment.center,
             crossAxisAlignment: CrossAxisAlignment.end,
             children: [
@@ -264,7 +378,7 @@ class _WeatherHeaderState extends State<_WeatherHeader> {
                 children: [
                   Icon(Icons.location_on, size: 15, color: Color(0xFF38A4A8)),
                   Text(
-                    ' Dhaka',
+                    ' ${appText('Dhaka')}',
                     style: TextStyle(
                       color: Color(0xFF111111),
                       fontSize: 13,
@@ -303,11 +417,11 @@ class _WeatherValue extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          label,
+          label.tr,
           style: const TextStyle(color: Color(0xFF777777), fontSize: 8),
         ),
         Text(
-          value,
+          appText(value),
           style: const TextStyle(
             color: Color(0xFF111111),
             fontSize: 11,
@@ -339,9 +453,9 @@ class _CompanyCard extends StatelessWidget {
             fit: BoxFit.contain,
           ),
           const SizedBox(width: 12),
-          const Expanded(
+          Expanded(
             child: Text(
-              'DMA Technology Limited',
+              appText('DMA Technology Limited'),
               style: TextStyle(
                 color: Colors.black,
                 fontSize: 18,

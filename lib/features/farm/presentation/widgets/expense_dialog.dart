@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:more_fish/core/localization/app_translations.dart';
 
 import '../../controllers/farm_accounting_controller.dart';
 import '../../models/farm_expense.dart';
@@ -82,7 +83,7 @@ class _ExpenseDialogState extends State<ExpenseDialog> {
                     children: [
                       Expanded(
                         child: Text(
-                          isEditing ? 'Edit Expense' : 'Add Expense',
+                          appText(isEditing ? 'Edit Expense' : 'Add Expense'),
                           style: const TextStyle(
                             color: Color(0xFF102A43),
                             fontFamily: 'serif',
@@ -104,8 +105,8 @@ class _ExpenseDialogState extends State<ExpenseDialog> {
                     ],
                   ),
                   const SizedBox(height: 4),
-                  const Text(
-                    'Enter the record details below',
+                  Text(
+                    appText('Enter the record details below'),
                     style: TextStyle(
                       color: Color(0xFF607690),
                       fontSize: 12,
@@ -161,7 +162,7 @@ class _ExpenseDialogState extends State<ExpenseDialog> {
                             borderRadius: BorderRadius.circular(8),
                           ),
                         ),
-                        child: const Text('Cancel'),
+                        child: Text(appText('Cancel')),
                       ),
                       const SizedBox(width: 8),
                       FilledButton(
@@ -173,7 +174,7 @@ class _ExpenseDialogState extends State<ExpenseDialog> {
                             borderRadius: BorderRadius.circular(8),
                           ),
                         ),
-                        child: Text(isEditing ? 'Update' : 'Save'),
+                        child: Text(appText(isEditing ? 'Update' : 'Save')),
                       ),
                     ],
                   ),
@@ -195,11 +196,14 @@ class _ExpenseDialogState extends State<ExpenseDialog> {
         isExpanded: true,
         decoration: _decoration('Select Stocking / Batch'),
         items: batches
-            .map((batch) => DropdownMenuItem(value: batch, child: Text(batch)))
+            .map(
+              (batch) =>
+                  DropdownMenuItem(value: batch, child: Text(appText(batch))),
+            )
             .toList(),
         onChanged: (value) => setState(() => _batch = value ?? _batch),
         validator: (value) =>
-            value == null || value.isEmpty ? 'Select a batch' : null,
+            value == null || value.isEmpty ? appText('Select a batch') : null,
       ),
     );
   }
@@ -213,13 +217,16 @@ class _ExpenseDialogState extends State<ExpenseDialog> {
         decoration: _decoration('Select Category'),
         items: FarmAccountingController.categories
             .map(
-              (category) =>
-                  DropdownMenuItem(value: category, child: Text(category)),
+              (category) => DropdownMenuItem(
+                value: category,
+                child: Text(appText(category)),
+              ),
             )
             .toList(),
         onChanged: (value) => setState(() => _category = value),
-        validator: (value) =>
-            value == null || value.isEmpty ? 'Select a category' : null,
+        validator: (value) => value == null || value.isEmpty
+            ? appText('Select a category')
+            : null,
       ),
     );
   }
@@ -233,7 +240,9 @@ class _ExpenseDialogState extends State<ExpenseDialog> {
         decoration: _decoration(''),
         validator: (value) {
           final amount = double.tryParse(value?.trim() ?? '');
-          return amount == null || amount <= 0 ? 'Enter a valid amount' : null;
+          return amount == null || amount <= 0
+              ? appText('Enter a valid amount')
+              : null;
         },
       ),
     );
@@ -270,7 +279,7 @@ class _ExpenseDialogState extends State<ExpenseDialog> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          label,
+          appText(label),
           style: const TextStyle(
             color: Color(0xFF607690),
             fontSize: 11,
@@ -285,7 +294,7 @@ class _ExpenseDialogState extends State<ExpenseDialog> {
 
   InputDecoration _decoration(String hint) {
     return InputDecoration(
-      hintText: hint.isEmpty ? null : hint,
+      hintText: hint.isEmpty ? null : appText(hint),
       contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 13),
       border: OutlineInputBorder(
         borderRadius: BorderRadius.circular(10),
@@ -330,7 +339,7 @@ class _ExpenseDialogState extends State<ExpenseDialog> {
 
   String _formatDate(DateTime date) {
     final day = date.day.toString().padLeft(2, '0');
-    return '$day-${_monthName(date.month)}-${date.year}';
+    return appText('$day-${_monthName(date.month)}-${date.year}');
   }
 
   String _monthName(int month) {
@@ -348,6 +357,6 @@ class _ExpenseDialogState extends State<ExpenseDialog> {
       'Nov',
       'Dec',
     ];
-    return months[month - 1];
+    return appText(months[month - 1]);
   }
 }

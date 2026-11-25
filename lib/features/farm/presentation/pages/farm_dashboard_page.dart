@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:more_fish/core/localization/app_translations.dart';
 
 import '../../controllers/farm_dashboard_controller.dart';
 import '../../models/farm_models.dart';
@@ -41,7 +42,7 @@ class _FarmDashboardPageState extends State<FarmDashboardPage> {
           elevation: 0,
           leading: isMobile
               ? IconButton(
-                  tooltip: 'Back',
+                  tooltip: appText('Back'),
                   onPressed: () => Navigator.of(context).pop(),
                   icon: const Icon(Icons.arrow_back),
                 )
@@ -54,14 +55,14 @@ class _FarmDashboardPageState extends State<FarmDashboardPage> {
             crossAxisAlignment: CrossAxisAlignment.start,
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              const Text(
-                'Farm Dashboard',
+              Text(
+                appText('Farm Dashboard'),
                 style: TextStyle(fontWeight: FontWeight.w800, fontSize: 22),
               ),
               const SizedBox(height: 4),
               Text(
-                '${controller.farms.length} ${controller.farms.length == 1 ? 'Farm' : 'Farms'}'
-                ' - ${selectedPonds.length} Ponds - $activePondCount Active Batches',
+                '${appText(controller.farms.length.toString())} ${appText(controller.farms.length == 1 ? 'Farm' : 'Farms')}'
+                ' - ${appText(selectedPonds.length.toString())} ${appText('Ponds')} - ${appText(activePondCount.toString())} ${appText('Active Batches')}',
                 style: const TextStyle(
                   color: Color(0xFF506579),
                   fontSize: 12,
@@ -170,8 +171,8 @@ class _FarmDashboardPageState extends State<FarmDashboardPage> {
       if (!mounted) return;
       controller.addFarm(farm);
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Farm created successfully.'),
+        SnackBar(
+          content: Text(appText('Farm created successfully.')),
           backgroundColor: Color(0xFFDCF6E7),
           behavior: SnackBarBehavior.floating,
           duration: Duration(seconds: 3),
@@ -194,8 +195,8 @@ class _FarmDashboardPageState extends State<FarmDashboardPage> {
       if (!mounted) return;
       controller.addPond(pond);
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Pond created successfully.'),
+        SnackBar(
+          content: Text(appText('Pond created successfully.')),
           backgroundColor: Color(0xFFDCF6E7),
           behavior: SnackBarBehavior.floating,
           duration: Duration(seconds: 3),

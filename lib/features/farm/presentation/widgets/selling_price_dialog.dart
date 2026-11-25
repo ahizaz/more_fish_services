@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:more_fish/core/localization/app_translations.dart';
 
 import '../../models/farm_selling_price.dart';
 
@@ -74,9 +75,11 @@ class _SellingPriceDialogState extends State<SellingPriceDialog> {
                     children: [
                       Expanded(
                         child: Text(
-                          isEditing
-                              ? 'Edit Fish Selling Price'
-                              : 'Add Fish Selling Price',
+                          appText(
+                            isEditing
+                                ? 'Edit Fish Selling Price'
+                                : 'Add Fish Selling Price',
+                          ),
                           style: const TextStyle(
                             color: Color(0xFF102A43),
                             fontFamily: 'serif',
@@ -98,8 +101,8 @@ class _SellingPriceDialogState extends State<SellingPriceDialog> {
                     ],
                   ),
                   const SizedBox(height: 4),
-                  const Text(
-                    'Enter the record details below',
+                  Text(
+                    appText('Enter the record details below'),
                     style: TextStyle(
                       color: Color(0xFF607690),
                       fontSize: 12,
@@ -151,7 +154,7 @@ class _SellingPriceDialogState extends State<SellingPriceDialog> {
                             borderRadius: BorderRadius.circular(8),
                           ),
                         ),
-                        child: const Text('Cancel'),
+                        child: Text(appText('Cancel')),
                       ),
                       const SizedBox(width: 8),
                       FilledButton(
@@ -163,7 +166,7 @@ class _SellingPriceDialogState extends State<SellingPriceDialog> {
                             borderRadius: BorderRadius.circular(8),
                           ),
                         ),
-                        child: Text(isEditing ? 'Update' : 'Save'),
+                        child: Text(appText(isEditing ? 'Update' : 'Save')),
                       ),
                     ],
                   ),
@@ -185,11 +188,14 @@ class _SellingPriceDialogState extends State<SellingPriceDialog> {
         isExpanded: true,
         decoration: _decoration('Select Stocking / Batch'),
         items: batches
-            .map((batch) => DropdownMenuItem(value: batch, child: Text(batch)))
+            .map(
+              (batch) =>
+                  DropdownMenuItem(value: batch, child: Text(appText(batch))),
+            )
             .toList(),
         onChanged: (value) => setState(() => _batch = value ?? _batch),
         validator: (value) =>
-            value == null || value.isEmpty ? 'Select a batch' : null,
+            value == null || value.isEmpty ? appText('Select a batch') : null,
       ),
     );
   }
@@ -203,7 +209,9 @@ class _SellingPriceDialogState extends State<SellingPriceDialog> {
         decoration: _decoration(''),
         validator: (value) {
           final price = double.tryParse(value?.trim() ?? '');
-          return price == null || price <= 0 ? 'Enter a valid price' : null;
+          return price == null || price <= 0
+              ? appText('Enter a valid price')
+              : null;
         },
       ),
     );
@@ -228,7 +236,7 @@ class _SellingPriceDialogState extends State<SellingPriceDialog> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          label,
+          appText(label),
           style: const TextStyle(
             color: Color(0xFF607690),
             fontSize: 11,
@@ -243,7 +251,7 @@ class _SellingPriceDialogState extends State<SellingPriceDialog> {
 
   InputDecoration _decoration(String hint) {
     return InputDecoration(
-      hintText: hint.isEmpty ? null : hint,
+      hintText: hint.isEmpty ? null : appText(hint),
       contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 13),
       border: OutlineInputBorder(
         borderRadius: BorderRadius.circular(10),
@@ -299,6 +307,8 @@ class _SellingPriceDialogState extends State<SellingPriceDialog> {
       'Nov',
       'Dec',
     ];
-    return '${date.day.toString().padLeft(2, '0')}-${months[date.month - 1]}-${date.year}';
+    return appText(
+      '${date.day.toString().padLeft(2, '0')}-${appText(months[date.month - 1])}-${date.year}',
+    );
   }
 }

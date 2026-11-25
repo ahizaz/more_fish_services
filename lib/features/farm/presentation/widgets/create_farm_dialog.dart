@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:more_fish/core/localization/app_translations.dart';
 
 import '../../models/farm_models.dart';
 import 'dashboard_dialog_helpers.dart';
@@ -48,9 +49,9 @@ class _CreateFarmDialogState extends State<CreateFarmDialog> {
                 children: [
                   Row(
                     children: [
-                      const Expanded(
+                      Expanded(
                         child: Text(
-                          'Create New Farm',
+                          appText('Create New Farm'),
                           style: TextStyle(
                             color: Color(0xFF102A43),
                             fontSize: 26,
@@ -69,23 +70,23 @@ class _CreateFarmDialogState extends State<CreateFarmDialog> {
                     ],
                   ),
                   const SizedBox(height: 22),
-                  const Text(
-                    'FARM NAME *',
+                  Text(
+                    appText('FARM NAME *'),
                     style: TextStyle(fontWeight: FontWeight.w800),
                   ),
                   const SizedBox(height: 8),
                   TextFormField(
                     controller: _name,
                     validator: (value) => value == null || value.trim().isEmpty
-                        ? 'Please enter a farm name'
+                        ? appText('Please enter a farm name')
                         : null,
                     decoration: dialogFieldDecoration(
                       'Example: AquaNova Fish Farm',
                     ),
                   ),
                   const SizedBox(height: 16),
-                  const Text(
-                    'LOCATION',
+                  Text(
+                    appText('LOCATION'),
                     style: TextStyle(fontWeight: FontWeight.w800),
                   ),
                   const SizedBox(height: 8),
@@ -95,13 +96,19 @@ class _CreateFarmDialogState extends State<CreateFarmDialog> {
                     isDense: true,
                     iconSize: 20,
                     decoration: dialogFieldDecoration(null),
-                    items: const [
+                    items: [
                       DropdownMenuItem(
                         value: 'Bangladesh',
-                        child: Text('Bangladesh'),
+                        child: Text(appText('Bangladesh')),
                       ),
-                      DropdownMenuItem(value: 'India', child: Text('India')),
-                      DropdownMenuItem(value: 'Nepal', child: Text('Nepal')),
+                      DropdownMenuItem(
+                        value: 'India',
+                        child: Text(appText('India')),
+                      ),
+                      DropdownMenuItem(
+                        value: 'Nepal',
+                        child: Text(appText('Nepal')),
+                      ),
                     ],
                     onChanged: (value) =>
                         setState(() => _location = value ?? 'Bangladesh'),
@@ -122,7 +129,7 @@ class _CreateFarmDialogState extends State<CreateFarmDialog> {
                             borderRadius: BorderRadius.circular(12),
                           ),
                         ),
-                        child: const Text('Cancel'),
+                        child: Text(appText('Cancel')),
                       );
                       final createButton = FilledButton(
                         onPressed: () {
@@ -146,7 +153,7 @@ class _CreateFarmDialogState extends State<CreateFarmDialog> {
                             borderRadius: BorderRadius.circular(12),
                           ),
                         ),
-                        child: const Text('Create Farm'),
+                        child: Text(appText('Create Farm')),
                       );
 
                       if (constraints.maxWidth < 360) {

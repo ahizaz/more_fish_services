@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:more_fish/core/localization/app_translations.dart';
 
 import '../../models/farm_models.dart';
 import 'dashboard_dialog_helpers.dart';
@@ -71,7 +72,7 @@ class _StockingDialogState extends State<StockingDialog> {
                             .map(
                               (farm) => DropdownMenuItem(
                                 value: farm.id,
-                                child: Text(farm.name),
+                                child: Text(appText(farm.name)),
                               ),
                             )
                             .toList(),
@@ -88,7 +89,7 @@ class _StockingDialogState extends State<StockingDialog> {
                             .map(
                               (pond) => DropdownMenuItem(
                                 value: pond.id,
-                                child: Text(pond.name),
+                                child: Text(appText(pond.name)),
                               ),
                             )
                             .toList(),
@@ -138,7 +139,7 @@ class _StockingDialogState extends State<StockingDialog> {
                     child: FilledButton(
                       onPressed: _save,
                       style: primaryButtonStyle(const Color(0xFF0A9D70)),
-                      child: const Text('Save Stocking'),
+                      child: Text(appText('Save Stocking')),
                     ),
                   ),
                 ],
@@ -146,7 +147,9 @@ class _StockingDialogState extends State<StockingDialog> {
             ),
             const SizedBox(height: 18),
             HistorySection(
-              title: '2. STOCKING HISTORY (${widget.stockings.length})',
+              title: appText(
+                '${appText('Stocking History')} (${widget.stockings.length})',
+              ),
               headers: const [
                 'DATE',
                 'BATCH / SPECIES',
@@ -207,7 +210,7 @@ class _StockingDialogState extends State<StockingDialog> {
         isExpanded: true,
         isDense: true,
         iconSize: 20,
-        hint: hint == null ? null : Text(hint),
+        hint: hint == null ? null : Text(appText(hint)),
         decoration: dialogFieldDecoration(null),
         items: items,
         selectedItemBuilder: (context) => [

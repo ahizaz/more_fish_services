@@ -2,6 +2,7 @@ import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:more_fish/core/localization/app_translations.dart';
 
 import '../../controllers/farm_accounting_controller.dart';
 import '../../controllers/farm_dashboard_controller.dart';
@@ -126,8 +127,8 @@ class _AccountingDashboardPageState extends State<AccountingDashboardPage> {
     ScaffoldMessenger.of(context)
       ..hideCurrentSnackBar()
       ..showSnackBar(
-        const SnackBar(
-          content: Text('Dashboard refreshed'),
+        SnackBar(
+          content: Text(appText('Dashboard refreshed')),
           duration: Duration(seconds: 2),
         ),
       );
@@ -185,7 +186,7 @@ class _AccountingDashboardPageState extends State<AccountingDashboardPage> {
         onPressed: onPressed,
         icon: Icon(icon, size: 22),
         color: _teal,
-        tooltip: 'Scroll',
+        tooltip: appText('Scroll'),
         constraints: const BoxConstraints.tightFor(width: 38, height: 38),
         padding: EdgeInsets.zero,
       ),
@@ -222,7 +223,7 @@ class _AccountingDashboardPageState extends State<AccountingDashboardPage> {
                   borderRadius: BorderRadius.circular(8),
                 ),
               ),
-              child: Text(isMobile ? '← Back' : '←  Back'),
+              child: Text(appText(isMobile ? '← Back' : '←  Back')),
             ),
           ),
           actions: [
@@ -246,7 +247,7 @@ class _AccountingDashboardPageState extends State<AccountingDashboardPage> {
                           : const EdgeInsets.symmetric(horizontal: 12),
                     ),
                     icon: const Icon(Icons.refresh, size: 16),
-                    label: Text(isMobile ? '' : 'Refresh'),
+                    label: Text(isMobile ? '' : appText('Refresh')),
                   ),
                   const SizedBox(width: 10),
                   FilledButton.icon(
@@ -264,7 +265,7 @@ class _AccountingDashboardPageState extends State<AccountingDashboardPage> {
                           : const EdgeInsets.symmetric(horizontal: 12),
                     ),
                     icon: const Icon(Icons.add, size: 16),
-                    label: Text(isMobile ? '' : 'Expense'),
+                    label: Text(isMobile ? '' : appText('Expense')),
                   ),
                 ],
               ),
@@ -279,8 +280,8 @@ class _AccountingDashboardPageState extends State<AccountingDashboardPage> {
             30,
           ),
           children: [
-            const Text(
-              'Farm Accounting',
+            Text(
+              appText('Farm Accounting'),
               style: TextStyle(
                 color: Color(0xFF102A43),
                 fontFamily: 'serif',
@@ -358,8 +359,8 @@ class _AccountingDashboardPageState extends State<AccountingDashboardPage> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const Text(
-                'Accounting Overview',
+              Text(
+                appText('Accounting Overview'),
                 style: TextStyle(
                   color: Color(0xFF102A43),
                   fontFamily: 'serif',
@@ -368,8 +369,8 @@ class _AccountingDashboardPageState extends State<AccountingDashboardPage> {
                 ),
               ),
               const SizedBox(height: 16),
-              const Text(
-                'Select a farm',
+              Text(
+                appText('Select a farm'),
                 style: TextStyle(
                   color: Color(0xFF607690),
                   fontSize: 13,
@@ -447,7 +448,7 @@ class _AccountingDashboardPageState extends State<AccountingDashboardPage> {
                           borderRadius: BorderRadius.circular(10),
                         ),
                       ),
-                      child: const Text('+ Expense'),
+                      child: Text(appText('+ Expense')),
                     ),
                   ),
                 ],
@@ -463,8 +464,8 @@ class _AccountingDashboardPageState extends State<AccountingDashboardPage> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const Text(
-                'Sales & Revenue Projection',
+              Text(
+                appText('Sales & Revenue Projection'),
                 style: TextStyle(
                   color: Color(0xFF102A43),
                   fontFamily: 'serif',
@@ -473,8 +474,10 @@ class _AccountingDashboardPageState extends State<AccountingDashboardPage> {
                 ),
               ),
               const SizedBox(height: 12),
-              const Text(
-                'Current valuation, projected revenue and recorded sales',
+              Text(
+                appText(
+                  'Current valuation, projected revenue and recorded sales',
+                ),
                 style: TextStyle(
                   color: Color(0xFF607690),
                   fontWeight: FontWeight.w600,
@@ -732,8 +735,8 @@ class _AccountingDashboardPageState extends State<AccountingDashboardPage> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text(
-            'Expense Breakdown',
+          Text(
+            appText('Expense Breakdown'),
             style: TextStyle(
               color: Color(0xFF102A43),
               fontSize: 26,
@@ -743,8 +746,10 @@ class _AccountingDashboardPageState extends State<AccountingDashboardPage> {
           const SizedBox(height: 8),
           Text(
             selectedFarm == null
-                ? 'Category-wise expense for Select a farm'
-                : 'Category-wise expense for ${selectedFarm.name}',
+                ? appText('Category-wise expense for Select a farm')
+                : appText(
+                    'Category-wise expense for {farm}',
+                  ).replaceAll('{farm}', appText(selectedFarm.name)),
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
             style: const TextStyle(
@@ -837,7 +842,7 @@ class _AccountingDashboardPageState extends State<AccountingDashboardPage> {
               const SizedBox(width: 10),
               Expanded(
                 child: Text(
-                  category.toUpperCase(),
+                  appText(category.toUpperCase()),
                   style: const TextStyle(
                     color: Color(0xFF102A43),
                     fontSize: 12,
@@ -846,7 +851,7 @@ class _AccountingDashboardPageState extends State<AccountingDashboardPage> {
                 ),
               ),
               Text(
-                '৳${amount.toStringAsFixed(0)}',
+                appText('৳${amount.toStringAsFixed(0)}'),
                 style: const TextStyle(
                   color: Color(0xFF102A43),
                   fontSize: 12,
@@ -868,7 +873,7 @@ class _AccountingDashboardPageState extends State<AccountingDashboardPage> {
           Align(
             alignment: Alignment.centerRight,
             child: Text(
-              '${(ratio * 100).toStringAsFixed(1)}%',
+              appText('${(ratio * 100).toStringAsFixed(1)}%'),
               style: const TextStyle(color: Color(0xFF90A4BE), fontSize: 10),
             ),
           ),
@@ -899,9 +904,9 @@ class _AccountingDashboardPageState extends State<AccountingDashboardPage> {
         children: [
           Row(
             children: [
-              const Expanded(
+              Expanded(
                 child: Text(
-                  'Fish Selling Price',
+                  appText('Fish Selling Price'),
                   style: TextStyle(
                     color: Color(0xFF102A43),
                     fontSize: 26,
@@ -918,13 +923,13 @@ class _AccountingDashboardPageState extends State<AccountingDashboardPage> {
                   padding: const EdgeInsets.symmetric(horizontal: 14),
                   minimumSize: const Size(0, 38),
                 ),
-                child: const Text('+ Add Price'),
+                child: Text(appText('+ Add Price')),
               ),
             ],
           ),
           const SizedBox(height: 8),
-          const Text(
-            'Latest price for each stocking',
+          Text(
+            appText('Latest price for each stocking'),
             style: TextStyle(
               color: Color(0xFF607690),
               fontSize: 12,
@@ -933,9 +938,9 @@ class _AccountingDashboardPageState extends State<AccountingDashboardPage> {
           ),
           const SizedBox(height: 16),
           if (latestPrice == null)
-            const Center(
+            Center(
               child: Text(
-                'Select a farm to view selling prices.',
+                appText('Select a farm to view selling prices.'),
                 style: TextStyle(
                   color: Color(0xFF90A4BE),
                   fontSize: 13,
@@ -958,7 +963,7 @@ class _AccountingDashboardPageState extends State<AccountingDashboardPage> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          latestPrice.stockingBatch,
+                          appText(latestPrice.stockingBatch),
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
                           style: const TextStyle(
@@ -969,7 +974,10 @@ class _AccountingDashboardPageState extends State<AccountingDashboardPage> {
                         ),
                         const SizedBox(height: 7),
                         Text(
-                          'Updated ${_formatExpenseDate(latestPrice.date)}',
+                          appText('Updated {date}').replaceAll(
+                            '{date}',
+                            _formatExpenseDate(latestPrice.date),
+                          ),
                           style: const TextStyle(
                             color: Color(0xFF7D8FA6),
                             fontSize: 11,
@@ -983,7 +991,9 @@ class _AccountingDashboardPageState extends State<AccountingDashboardPage> {
                     crossAxisAlignment: CrossAxisAlignment.end,
                     children: [
                       Text(
-                        '৳${latestPrice.pricePerKg.toStringAsFixed(0)}',
+                        appText(
+                          '৳${latestPrice.pricePerKg.toStringAsFixed(0)}',
+                        ),
                         style: const TextStyle(
                           color: Color(0xFF0F6D72),
                           fontSize: 16,
@@ -991,8 +1001,8 @@ class _AccountingDashboardPageState extends State<AccountingDashboardPage> {
                         ),
                       ),
                       const SizedBox(height: 4),
-                      const Text(
-                        'per kg',
+                      Text(
+                        appText('per kg'),
                         style: TextStyle(
                           color: Color(0xFF7D8FA6),
                           fontSize: 10,
@@ -1005,7 +1015,7 @@ class _AccountingDashboardPageState extends State<AccountingDashboardPage> {
             ),
             const SizedBox(height: 16),
             _overviewActionButton(
-              label: 'View Price History →',
+              label: appText('View Price History →'),
               onPressed: () => setState(() => _tab = 2),
             ),
           ],
@@ -1028,7 +1038,7 @@ class _AccountingDashboardPageState extends State<AccountingDashboardPage> {
           side: const BorderSide(color: Color(0xFFD1DDE8)),
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
         ),
-        child: Text(label),
+        child: Text(appText(label)),
       ),
     );
   }
@@ -1061,12 +1071,12 @@ class _AccountingDashboardPageState extends State<AccountingDashboardPage> {
         children: [
           Row(
             children: [
-              const Expanded(
+              Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      'Fish Sales',
+                      appText('Fish Sales'),
                       style: TextStyle(
                         color: Color(0xFF102A43),
                         fontFamily: 'serif',
@@ -1076,7 +1086,7 @@ class _AccountingDashboardPageState extends State<AccountingDashboardPage> {
                     ),
                     SizedBox(height: 8),
                     Text(
-                      'Actual recorded sales and revenue',
+                      appText('Actual recorded sales and revenue'),
                       style: TextStyle(
                         color: Color(0xFF607690),
                         fontSize: 12,
@@ -1097,7 +1107,7 @@ class _AccountingDashboardPageState extends State<AccountingDashboardPage> {
                   ),
                 ),
                 icon: const Icon(Icons.add, size: 15),
-                label: Text(isMobile ? 'Record' : '+ Record Sale'),
+                label: Text(appText(isMobile ? 'Record' : '+ Record Sale')),
               ),
             ],
           ),
@@ -1112,22 +1122,22 @@ class _AccountingDashboardPageState extends State<AccountingDashboardPage> {
                 runSpacing: 10,
                 children: [
                   _salesMetricCard(
-                    'Total Sales',
-                    '৳${totalRevenue.toStringAsFixed(0)}',
+                    appText('Total Sales'),
+                    appText('৳${totalRevenue.toStringAsFixed(0)}'),
                     const Color(0xFFE9FAF7),
                     _teal,
                     cardWidth,
                   ),
                   _salesMetricCard(
-                    'Sale Records',
-                    '${sales.length}',
+                    appText('Sale Records'),
+                    appText('${sales.length}'),
                     const Color(0xFFEAF2FF),
                     const Color(0xFF356AE6),
                     cardWidth,
                   ),
                   _salesMetricCard(
-                    'Weight Sold',
-                    '${totalWeight.toStringAsFixed(0)} kg',
+                    appText('Weight Sold'),
+                    appText('${totalWeight.toStringAsFixed(0)} kg'),
                     const Color(0xFFFFF5E9),
                     const Color(0xFFF05A00),
                     cardWidth,
@@ -1141,7 +1151,7 @@ class _AccountingDashboardPageState extends State<AccountingDashboardPage> {
             controller: _saleSearchController,
             onChanged: (_) => setState(() {}),
             decoration: InputDecoration(
-              hintText: 'Search sales...',
+              hintText: appText('Search sales...'),
               prefixIcon: const Icon(Icons.search, size: 18),
               contentPadding: const EdgeInsets.symmetric(
                 horizontal: 12,
@@ -1155,11 +1165,11 @@ class _AccountingDashboardPageState extends State<AccountingDashboardPage> {
           ),
           const SizedBox(height: 18),
           if (sales.isEmpty)
-            const Padding(
+            Padding(
               padding: EdgeInsets.symmetric(vertical: 40),
               child: Center(
                 child: Text(
-                  'No sales records found.',
+                  appText('No sales records found.'),
                   style: TextStyle(color: Color(0xFF607690)),
                 ),
               ),
@@ -1217,10 +1227,13 @@ class _AccountingDashboardPageState extends State<AccountingDashboardPage> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(title, style: TextStyle(color: foreground, fontSize: 12)),
+            Text(
+              appText(title),
+              style: TextStyle(color: foreground, fontSize: 12),
+            ),
             const SizedBox(height: 8),
             Text(
-              value,
+              appText(value),
               style: TextStyle(
                 color: foreground,
                 fontSize: 20,
@@ -1252,7 +1265,7 @@ class _AccountingDashboardPageState extends State<AccountingDashboardPage> {
           .map(
             (header) => _expenseCell(
               Text(
-                header,
+                appText(header),
                 style: const TextStyle(
                   color: Color(0xFF102A43),
                   fontSize: 11,
@@ -1287,7 +1300,7 @@ class _AccountingDashboardPageState extends State<AccountingDashboardPage> {
               OutlinedButton(
                 onPressed: () => _openSaleDialog(sale: sale),
                 style: _smallActionStyle(padding: 6),
-                child: const Text('Edit'),
+                child: Text(appText('Edit')),
               ),
               const SizedBox(width: 4),
               OutlinedButton(
@@ -1296,7 +1309,7 @@ class _AccountingDashboardPageState extends State<AccountingDashboardPage> {
                   foregroundColor: const Color(0xFFC62828),
                   padding: 6,
                 ),
-                child: const Text('Delete'),
+                child: Text(appText('Delete')),
               ),
             ],
           ),
@@ -1326,12 +1339,12 @@ class _AccountingDashboardPageState extends State<AccountingDashboardPage> {
           Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const Expanded(
+              Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      'Fish Selling Price',
+                      appText('Fish Selling Price'),
                       style: TextStyle(
                         color: Color(0xFF102A43),
                         fontFamily: 'serif',
@@ -1341,7 +1354,7 @@ class _AccountingDashboardPageState extends State<AccountingDashboardPage> {
                     ),
                     SizedBox(height: 8),
                     Text(
-                      'Stocking-wise selling price history',
+                      appText('Stocking-wise selling price history'),
                       style: TextStyle(
                         color: Color(0xFF607690),
                         fontSize: 12,
@@ -1365,7 +1378,7 @@ class _AccountingDashboardPageState extends State<AccountingDashboardPage> {
                   ),
                 ),
                 icon: const Icon(Icons.add, size: 15),
-                label: Text(isMobile ? 'Add' : '+ Add Selling Price'),
+                label: Text(appText(isMobile ? 'Add' : '+ Add Selling Price')),
               ),
             ],
           ),
@@ -1374,7 +1387,7 @@ class _AccountingDashboardPageState extends State<AccountingDashboardPage> {
             controller: _sellingPriceSearchController,
             onChanged: (_) => setState(() {}),
             decoration: InputDecoration(
-              hintText: 'Search selling price records...',
+              hintText: appText('Search selling price records...'),
               prefixIcon: const Icon(Icons.search, size: 18),
               contentPadding: const EdgeInsets.symmetric(
                 horizontal: 12,
@@ -1392,11 +1405,11 @@ class _AccountingDashboardPageState extends State<AccountingDashboardPage> {
           ),
           const SizedBox(height: 18),
           if (prices.isEmpty)
-            const Padding(
+            Padding(
               padding: EdgeInsets.symmetric(vertical: 40),
               child: Center(
                 child: Text(
-                  'No selling price records found.',
+                  appText('No selling price records found.'),
                   style: TextStyle(color: Color(0xFF607690)),
                 ),
               ),
@@ -1449,7 +1462,7 @@ class _AccountingDashboardPageState extends State<AccountingDashboardPage> {
           .map(
             (header) => _expenseCell(
               Text(
-                header,
+                appText(header),
                 style: const TextStyle(
                   color: Color(0xFF102A43),
                   fontSize: 11,
@@ -1478,7 +1491,7 @@ class _AccountingDashboardPageState extends State<AccountingDashboardPage> {
               OutlinedButton(
                 onPressed: () => _openSellingPriceDialog(sellingPrice: price),
                 style: _smallActionStyle(padding: 6),
-                child: const Text('Edit'),
+                child: Text(appText('Edit')),
               ),
               const SizedBox(width: 4),
               OutlinedButton(
@@ -1487,7 +1500,7 @@ class _AccountingDashboardPageState extends State<AccountingDashboardPage> {
                   foregroundColor: const Color(0xFFC62828),
                   padding: 6,
                 ),
-                child: const Text('Delete'),
+                child: Text(appText('Delete')),
               ),
             ],
           ),
@@ -1521,8 +1534,8 @@ class _AccountingDashboardPageState extends State<AccountingDashboardPage> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Text(
-                      'Expenses',
+                    Text(
+                      appText('Expenses'),
                       style: TextStyle(
                         color: Color(0xFF102A43),
                         fontFamily: 'serif',
@@ -1532,7 +1545,7 @@ class _AccountingDashboardPageState extends State<AccountingDashboardPage> {
                     ),
                     const SizedBox(height: 8),
                     Text(
-                      '${expenses.length} record(s)',
+                      appText('${expenses.length} record(s)'),
                       style: const TextStyle(
                         color: Color(0xFF607690),
                         fontSize: 12,
@@ -1554,7 +1567,7 @@ class _AccountingDashboardPageState extends State<AccountingDashboardPage> {
                   ),
                 ),
                 icon: const Icon(Icons.add, size: 15),
-                label: Text(isMobile ? 'Add' : 'Add Expense'),
+                label: Text(appText(isMobile ? 'Add' : 'Add Expense')),
               ),
             ],
           ),
@@ -1563,7 +1576,7 @@ class _AccountingDashboardPageState extends State<AccountingDashboardPage> {
             controller: _expenseSearchController,
             onChanged: (_) => setState(() {}),
             decoration: InputDecoration(
-              hintText: 'Search expenses...',
+              hintText: appText('Search expenses...'),
               prefixIcon: const Icon(Icons.search, size: 18),
               contentPadding: const EdgeInsets.symmetric(
                 horizontal: 12,
@@ -1581,11 +1594,11 @@ class _AccountingDashboardPageState extends State<AccountingDashboardPage> {
           ),
           const SizedBox(height: 18),
           if (expenses.isEmpty)
-            const Padding(
+            Padding(
               padding: EdgeInsets.symmetric(vertical: 40),
               child: Center(
                 child: Text(
-                  'No expenses found.',
+                  appText('No expenses found.'),
                   style: TextStyle(color: Color(0xFF607690)),
                 ),
               ),
@@ -1642,7 +1655,7 @@ class _AccountingDashboardPageState extends State<AccountingDashboardPage> {
           .map(
             (header) => _expenseCell(
               Text(
-                header,
+                appText(header),
                 style: const TextStyle(
                   color: Color(0xFF102A43),
                   fontSize: 11,
@@ -1673,7 +1686,7 @@ class _AccountingDashboardPageState extends State<AccountingDashboardPage> {
               OutlinedButton(
                 onPressed: () => _openExpenseDialog(expense: expense),
                 style: _smallActionStyle(padding: 6),
-                child: const Text('Edit'),
+                child: Text(appText('Edit')),
               ),
               const SizedBox(width: 4),
               OutlinedButton(
@@ -1682,7 +1695,7 @@ class _AccountingDashboardPageState extends State<AccountingDashboardPage> {
                   foregroundColor: const Color(0xFFC62828),
                   padding: 6,
                 ),
-                child: const Text('Delete'),
+                child: Text(appText('Delete')),
               ),
             ],
           ),
@@ -1700,7 +1713,7 @@ class _AccountingDashboardPageState extends State<AccountingDashboardPage> {
 
   Text _expenseText(String value) {
     return Text(
-      value,
+      appText(value),
       maxLines: 2,
       overflow: TextOverflow.ellipsis,
       style: const TextStyle(
@@ -1727,7 +1740,7 @@ class _AccountingDashboardPageState extends State<AccountingDashboardPage> {
 
   Widget _fieldLabel(String label) {
     return Text(
-      label,
+      appText(label),
       style: const TextStyle(
         color: Color(0xFF607690),
         fontSize: 11,
@@ -1740,7 +1753,7 @@ class _AccountingDashboardPageState extends State<AccountingDashboardPage> {
     final farmNames = _controller.farms.map((farm) => farm.name).toList();
     return _DropdownField(
       value: farmNames.contains(_farm) ? _farm : null,
-      hint: 'Select Farm',
+      hint: appText('Select Farm'),
       items: farmNames,
       onChanged: (value) => setState(() {
         _farm = value;
@@ -1753,7 +1766,7 @@ class _AccountingDashboardPageState extends State<AccountingDashboardPage> {
   Widget _pondDropdown(List<String> ponds) {
     return _DropdownField(
       value: ponds.contains(_pond) ? _pond : null,
-      hint: _farm == null ? 'Select Farm First' : 'Select Pond',
+      hint: appText(_farm == null ? 'Select Farm First' : 'Select Pond'),
       items: ponds,
       onChanged: (value) => setState(() {
         _pond = value;
@@ -1768,7 +1781,7 @@ class _AccountingDashboardPageState extends State<AccountingDashboardPage> {
         : const ['Tank A', 'Tank B'];
     return _DropdownField(
       value: spaces.contains(_space) ? _space : null,
-      hint: _pond == null ? 'Select Pond First' : 'Select Space',
+      hint: appText(_pond == null ? 'Select Pond First' : 'Select Space'),
       items: spaces,
       onChanged: (value) => setState(() => _space = value),
     );
@@ -1808,19 +1821,19 @@ class _AccountingDashboardPageState extends State<AccountingDashboardPage> {
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (dialogContext) => AlertDialog(
-        title: const Text('Delete Expense'),
-        content: const Text('Are you sure you want to delete this expense?'),
+        title: Text(appText('Delete Expense')),
+        content: Text(appText('Are you sure you want to delete this expense?')),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(dialogContext).pop(false),
-            child: const Text('Cancel'),
+            child: Text(appText('Cancel')),
           ),
           FilledButton(
             onPressed: () => Navigator.of(dialogContext).pop(true),
             style: FilledButton.styleFrom(
               backgroundColor: const Color(0xFFC62828),
             ),
-            child: const Text('Delete'),
+            child: Text(appText('Delete')),
           ),
         ],
       ),
@@ -1864,21 +1877,21 @@ class _AccountingDashboardPageState extends State<AccountingDashboardPage> {
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (dialogContext) => AlertDialog(
-        title: const Text('Delete Selling Price'),
-        content: const Text(
-          'Are you sure you want to delete this selling price?',
+        title: Text(appText('Delete Selling Price')),
+        content: Text(
+          appText('Are you sure you want to delete this selling price?'),
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(dialogContext).pop(false),
-            child: const Text('Cancel'),
+            child: Text(appText('Cancel')),
           ),
           FilledButton(
             onPressed: () => Navigator.of(dialogContext).pop(true),
             style: FilledButton.styleFrom(
               backgroundColor: const Color(0xFFC62828),
             ),
-            child: const Text('Delete'),
+            child: Text(appText('Delete')),
           ),
         ],
       ),
@@ -1919,19 +1932,19 @@ class _AccountingDashboardPageState extends State<AccountingDashboardPage> {
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (dialogContext) => AlertDialog(
-        title: const Text('Delete Sale'),
-        content: const Text('Are you sure you want to delete this sale?'),
+        title: Text(appText('Delete Sale')),
+        content: Text(appText('Are you sure you want to delete this sale?')),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(dialogContext).pop(false),
-            child: const Text('Cancel'),
+            child: Text(appText('Cancel')),
           ),
           FilledButton(
             onPressed: () => Navigator.of(dialogContext).pop(true),
             style: FilledButton.styleFrom(
               backgroundColor: const Color(0xFFC62828),
             ),
-            child: const Text('Delete'),
+            child: Text(appText('Delete')),
           ),
         ],
       ),
@@ -1944,7 +1957,7 @@ class _AccountingDashboardPageState extends State<AccountingDashboardPage> {
   void _showMessage(String message) {
     ScaffoldMessenger.of(
       context,
-    ).showSnackBar(SnackBar(content: Text(message)));
+    ).showSnackBar(SnackBar(content: Text(appText(message))));
   }
 
   String _formatExpenseDate(DateTime date) {
@@ -1962,7 +1975,9 @@ class _AccountingDashboardPageState extends State<AccountingDashboardPage> {
       'Nov',
       'Dec',
     ];
-    return '${months[date.month - 1]} ${date.day}, ${date.year}';
+    return appText(
+      '${appText(months[date.month - 1])} ${date.day}, ${date.year}',
+    );
   }
 
   BoxDecoration _panelDecoration() {
@@ -2007,7 +2022,7 @@ class _TabButton extends StatelessWidget {
           border: selected ? null : Border.all(color: const Color(0xFFE1E7ED)),
         ),
         child: Text(
-          label,
+          appText(label),
           style: TextStyle(
             color: selected ? Colors.white : const Color(0xFF607690),
             fontSize: 12,
@@ -2049,11 +2064,13 @@ class _DropdownField extends StatelessWidget {
           ),
           isExpanded: true,
           value: value,
-          hint: Text(hint),
+          hint: Text(appText(hint)),
           items: items
               .map(
-                (item) =>
-                    DropdownMenuItem<String>(value: item, child: Text(item)),
+                (item) => DropdownMenuItem<String>(
+                  value: item,
+                  child: Text(appText(item)),
+                ),
               )
               .toList(),
           onChanged: items.isEmpty ? null : onChanged,
@@ -2095,7 +2112,7 @@ class _RevenueCard extends StatelessWidget {
             children: [
               Expanded(
                 child: Text(
-                  title,
+                  appText(title),
                   style: const TextStyle(
                     color: Color(0xFF607690),
                     fontSize: 12,
@@ -2108,7 +2125,7 @@ class _RevenueCard extends StatelessWidget {
           ),
           const SizedBox(height: 10),
           Text(
-            value,
+            appText(value),
             style: const TextStyle(
               color: Color(0xFF102A43),
               fontSize: 18,
@@ -2117,7 +2134,7 @@ class _RevenueCard extends StatelessWidget {
           ),
           const SizedBox(height: 12),
           Text(
-            subtitle,
+            appText(subtitle),
             style: const TextStyle(
               color: Color(0xFF607690),
               fontSize: 10,
@@ -2156,7 +2173,7 @@ class _MetricCard extends StatelessWidget {
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           Text(
-            title,
+            appText(title),
             style: const TextStyle(
               color: Color(0xFF607690),
               fontSize: 12,
@@ -2199,7 +2216,7 @@ class _ExpenseDonut extends StatelessWidget {
             mainAxisSize: MainAxisSize.min,
             children: [
               Text(
-                '৳${total.toStringAsFixed(0)}',
+                appText('৳${total.toStringAsFixed(0)}'),
                 style: const TextStyle(
                   color: Color(0xFF102A43),
                   fontSize: 16,
@@ -2207,8 +2224,8 @@ class _ExpenseDonut extends StatelessWidget {
                 ),
               ),
               const SizedBox(height: 4),
-              const Text(
-                'Total Expense',
+              Text(
+                appText('Total Expense'),
                 style: TextStyle(color: Color(0xFF607690), fontSize: 10),
               ),
             ],

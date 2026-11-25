@@ -1,5 +1,6 @@
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
+import 'package:more_fish/core/localization/app_translations.dart';
 
 import '../../models/farm_models.dart';
 import 'dashboard_dialog_helpers.dart';
@@ -76,9 +77,9 @@ class _CreatePondDialogState extends State<CreatePondDialog> {
                 children: [
                   Row(
                     children: [
-                      const Expanded(
+                      Expanded(
                         child: Text(
-                          'Create New Pond & Image',
+                          appText('Create New Pond & Image'),
                           style: TextStyle(
                             color: Color(0xFF102A43),
                             fontSize: 26,
@@ -97,8 +98,8 @@ class _CreatePondDialogState extends State<CreatePondDialog> {
                     ],
                   ),
                   const SizedBox(height: 18),
-                  const Text(
-                    'SELECT FARM *',
+                  Text(
+                    appText('SELECT FARM *'),
                     style: TextStyle(fontWeight: FontWeight.w800),
                   ),
                   const SizedBox(height: 8),
@@ -112,7 +113,7 @@ class _CreatePondDialogState extends State<CreatePondDialog> {
                         .map(
                           (farm) => DropdownMenuItem(
                             value: farm.id,
-                            child: Text(farm.name),
+                            child: Text(appText(farm.name)),
                           ),
                         )
                         .toList(),
@@ -120,15 +121,15 @@ class _CreatePondDialogState extends State<CreatePondDialog> {
                         setState(() => _farmId = value ?? _farmId),
                   ),
                   const SizedBox(height: 16),
-                  const Text(
-                    'POND NAME *',
+                  Text(
+                    appText('POND NAME *'),
                     style: TextStyle(fontWeight: FontWeight.w800),
                   ),
                   const SizedBox(height: 8),
                   TextFormField(
                     controller: _name,
                     validator: (value) => value == null || value.trim().isEmpty
-                        ? 'Please enter a pond name'
+                        ? appText('Please enter a pond name')
                         : null,
                     decoration: dialogFieldDecoration(
                       'Example: Blue Pearl Pond',
@@ -140,8 +141,8 @@ class _CreatePondDialogState extends State<CreatePondDialog> {
                       final areaField = Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          const Text(
-                            'AREA (OPTIONAL)',
+                          Text(
+                            appText('AREA (OPTIONAL)'),
                             style: TextStyle(fontWeight: FontWeight.w800),
                           ),
                           const SizedBox(height: 8),
@@ -157,8 +158,8 @@ class _CreatePondDialogState extends State<CreatePondDialog> {
                       final unitField = Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          const Text(
-                            'AREA UNIT',
+                          Text(
+                            appText('AREA UNIT'),
                             style: TextStyle(fontWeight: FontWeight.w800),
                           ),
                           const SizedBox(height: 8),
@@ -168,18 +169,18 @@ class _CreatePondDialogState extends State<CreatePondDialog> {
                             isDense: true,
                             iconSize: 20,
                             decoration: dialogFieldDecoration(null),
-                            items: const [
+                            items: [
                               DropdownMenuItem(
                                 value: 'DECIMAL',
-                                child: Text('DECIMAL'),
+                                child: Text(appText('DECIMAL')),
                               ),
                               DropdownMenuItem(
                                 value: 'ACRE',
-                                child: Text('ACRE'),
+                                child: Text(appText('ACRE')),
                               ),
                               DropdownMenuItem(
                                 value: 'SQUARE_METER',
-                                child: Text('SQUARE_METER'),
+                                child: Text(appText('SQUARE_METER')),
                               ),
                             ],
                             onChanged: (value) =>
@@ -207,8 +208,8 @@ class _CreatePondDialogState extends State<CreatePondDialog> {
                     },
                   ),
                   const SizedBox(height: 16),
-                  const Text(
-                    'POND IMAGE (OPTIONAL)',
+                  Text(
+                    appText('POND IMAGE (OPTIONAL)'),
                     style: TextStyle(fontWeight: FontWeight.w800),
                   ),
                   const SizedBox(height: 8),
@@ -223,12 +224,12 @@ class _CreatePondDialogState extends State<CreatePondDialog> {
                       children: [
                         OutlinedButton(
                           onPressed: _pickImage,
-                          child: const Text('Choose File'),
+                          child: Text(appText('Choose File')),
                         ),
                         const SizedBox(width: 10),
                         Expanded(
                           child: Text(
-                            _imageName ?? 'No file chosen',
+                            appText(_imageName ?? 'No file chosen'),
                             overflow: TextOverflow.ellipsis,
                           ),
                         ),
@@ -249,7 +250,7 @@ class _CreatePondDialogState extends State<CreatePondDialog> {
                             borderRadius: BorderRadius.circular(12),
                           ),
                         ),
-                        child: const Text('Cancel'),
+                        child: Text(appText('Cancel')),
                       ),
                       const SizedBox(width: 10),
                       FilledButton(
@@ -277,7 +278,7 @@ class _CreatePondDialogState extends State<CreatePondDialog> {
                             borderRadius: BorderRadius.circular(12),
                           ),
                         ),
-                        child: const Text('Create Pond'),
+                        child: Text(appText('Create Pond')),
                       ),
                     ],
                   ),

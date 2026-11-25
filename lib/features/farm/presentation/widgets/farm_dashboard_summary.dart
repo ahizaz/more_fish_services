@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:more_fish/core/localization/app_translations.dart';
 
 class FarmDashboardSummary extends StatelessWidget {
   const FarmDashboardSummary({
@@ -104,7 +105,7 @@ class _SummaryCard extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  value,
+                  appText(value),
                   style: TextStyle(
                     color: const Color(0xFF102A43),
                     fontSize: isMobile ? 18 : 22,
@@ -112,7 +113,7 @@ class _SummaryCard extends StatelessWidget {
                   ),
                 ),
                 Text(
-                  title,
+                  appText(title),
                   maxLines: 2,
                   overflow: TextOverflow.ellipsis,
                   style: TextStyle(

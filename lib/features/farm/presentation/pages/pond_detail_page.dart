@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:more_fish/core/localization/app_translations.dart';
 
 import '../../controllers/pond_detail_controller.dart';
 import '../../models/pond_detail_models.dart';
@@ -81,8 +82,10 @@ class PondDetailPage extends StatelessWidget {
                                 SnackBar(
                                   content: Text(
                                     saved
-                                        ? 'Aerator settings saved'
-                                        : 'Unable to save aerator settings',
+                                        ? appText('Aerator settings saved')
+                                        : appText(
+                                            'Unable to save aerator settings',
+                                          ),
                                   ),
                                   behavior: SnackBarBehavior.floating,
                                   duration: const Duration(seconds: 2),
@@ -147,7 +150,7 @@ class _PondHeader extends StatelessWidget {
             const SizedBox(width: 14),
             Expanded(
               child: Text(
-                pondName,
+                appText(pondName),
                 style: const TextStyle(
                   color: Colors.white,
                   fontSize: 26,
@@ -156,7 +159,7 @@ class _PondHeader extends StatelessWidget {
               ),
             ),
             IconButton(
-              tooltip: 'Close',
+              tooltip: appText('Close'),
               onPressed: onClose,
               style: IconButton.styleFrom(
                 backgroundColor: Colors.white.withValues(alpha: 0.12),
@@ -206,8 +209,8 @@ class _AeratorCard extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text(
-            'Manual ON / OFF',
+          Text(
+            appText('Manual ON / OFF'),
             style: TextStyle(
               color: Color(0xFF34495E),
               fontSize: 14,
@@ -215,8 +218,8 @@ class _AeratorCard extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 8),
-          const Text(
-            'Instant manual aerator switch',
+          Text(
+            appText('Instant manual aerator switch'),
             style: TextStyle(
               color: Color(0xFF34495E),
               fontSize: 13,
@@ -239,7 +242,7 @@ class _AeratorCard extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        data.aeratorName,
+                        appText(data.aeratorName),
                         style: TextStyle(
                           color: Color(0xFF2B4158),
                           fontWeight: FontWeight.w800,
@@ -248,8 +251,8 @@ class _AeratorCard extends StatelessWidget {
                       const SizedBox(height: 3),
                       Text(
                         manualOn
-                            ? 'Currently ON - Online'
-                            : 'Currently OFF - Offline',
+                            ? appText('Currently ON - Online')
+                            : appText('Currently OFF - Offline'),
                         style: const TextStyle(
                           color: Color(0xFF60758A),
                           fontSize: 12,
@@ -269,8 +272,8 @@ class _AeratorCard extends StatelessWidget {
           ),
           if (automationEnabled) ...[
             const SizedBox(height: 10),
-            const Text(
-              'Manual switch locked while DO automation is ON.',
+            Text(
+              appText('Manual switch locked while DO automation is ON.'),
               style: TextStyle(
                 color: Color(0xFF60758A),
                 fontSize: 12,
@@ -299,7 +302,7 @@ class _AeratorCard extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      'DO-based Automation',
+                      appText('DO-based Automation'),
                       style: TextStyle(
                         color: Color(0xFF34495E),
                         fontSize: 14,
@@ -308,7 +311,7 @@ class _AeratorCard extends StatelessWidget {
                     ),
                     SizedBox(height: 6),
                     Text(
-                      'Auto aerator control by DO level',
+                      appText('Auto aerator control by DO level'),
                       style: TextStyle(
                         color: Color(0xFF34495E),
                         fontSize: 13,
@@ -323,8 +326,8 @@ class _AeratorCard extends StatelessWidget {
                 onChanged: (value) => onAutomationChanged(value ?? false),
                 activeColor: const Color(0xFF16869F),
               ),
-              const Text(
-                'ENABLE',
+              Text(
+                appText('ENABLE'),
                 style: TextStyle(
                   color: Color(0xFF34495E),
                   fontSize: 12,
@@ -353,8 +356,8 @@ class _AeratorCard extends StatelessWidget {
               color: const Color(0xFFF3F6F8),
               borderRadius: BorderRadius.circular(9),
             ),
-            child: const Text(
-              'DO below minimum  → ON · DO above maximum → OFF',
+            child: Text(
+              appText('DO below minimum  → ON · DO above maximum → OFF'),
               style: TextStyle(
                 color: Color(0xFF34495E),
                 fontSize: 12,
@@ -367,7 +370,9 @@ class _AeratorCard extends StatelessWidget {
             children: [
               Expanded(
                 child: Text(
-                  'Live DO: ${data.liveDo.toStringAsFixed(2)} mg/L · ${data.isOnline ? 'Live' : 'Stale'}',
+                  appText(
+                    '${appText('Live DO')}: ${data.liveDo.toStringAsFixed(2)} mg/L · ${appText(data.isOnline ? 'Live' : 'Stale')}',
+                  ),
                   style: TextStyle(
                     color: Color(0xFF34495E),
                     fontSize: 13,
@@ -386,8 +391,8 @@ class _AeratorCard extends StatelessWidget {
                     borderRadius: BorderRadius.circular(8),
                   ),
                 ),
-                child: const Text(
-                  'Save Settings',
+                child: Text(
+                  appText('Save Settings'),
                   style: TextStyle(fontSize: 11, fontWeight: FontWeight.w800),
                 ),
               ),
@@ -415,9 +420,10 @@ class _AeratorCard extends StatelessWidget {
         children: [
           _SectionTitle(
             icon: Icons.air,
-            title: 'Aerator Control',
-            subtitle: 'Manual ON/OFF & dissolved oxygen automation',
-            trailing: 'Device #${data.deviceNumber}',
+            title: appText('Aerator Control'),
+            subtitle: appText('Manual ON/OFF & dissolved oxygen automation'),
+            trailing:
+                '${appText('Device')} #${appText(data.deviceNumber.toString())}',
           ),
           const SizedBox(height: 14),
           if (isMobile)
@@ -449,7 +455,7 @@ class _DoField extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          label,
+          appText(label),
           style: const TextStyle(
             color: Color(0xFF34495E),
             fontSize: 12,
@@ -583,9 +589,9 @@ class _SensorSection extends StatelessWidget {
             children: [
               const Icon(Icons.memory, color: Color(0xFF315BDA), size: 22),
               const SizedBox(width: 8),
-              const Expanded(
+              Expanded(
                 child: Text(
-                  'All Live IoT Water Sensors',
+                  appText('All Live IoT Water Sensors'),
                   style: TextStyle(
                     color: Color(0xFF1C2E40),
                     fontSize: 22,
@@ -602,8 +608,8 @@ class _SensorSection extends StatelessWidget {
                   color: const Color(0xFFE6F6EC),
                   borderRadius: BorderRadius.circular(14),
                 ),
-                child: const Text(
-                  'Offline',
+                child: Text(
+                  appText('Offline'),
                   style: TextStyle(
                     color: Color(0xFF168C52),
                     fontSize: 12,
@@ -649,7 +655,7 @@ class _SensorSection extends StatelessWidget {
                       children: [
                         Expanded(
                           child: Text(
-                            sensor.label,
+                            appText(sensor.label),
                             style: const TextStyle(
                               color: Color(0xFF34495E),
                               fontSize: 11,
@@ -662,7 +668,7 @@ class _SensorSection extends StatelessWidget {
                     ),
                     const Spacer(),
                     Text(
-                      sensor.value,
+                      appText(sensor.value),
                       style: TextStyle(
                         color: sensor.color,
                         fontSize: 13,
@@ -698,7 +704,7 @@ class _BatchSection extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'ALL BATCHES & SPACES IN ${data.pondName.toUpperCase()} (1)',
+            '${appText('ALL BATCHES & SPACES IN')} ${appText(data.pondName.toUpperCase())} (${appText('1')})',
             style: TextStyle(
               color: Color(0xFF34495E),
               fontSize: 13,
@@ -723,7 +729,7 @@ class _BatchSection extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        data.batchName,
+                        appText(data.batchName),
                         style: const TextStyle(
                           color: Colors.white,
                           fontSize: 13,
@@ -732,7 +738,7 @@ class _BatchSection extends StatelessWidget {
                       ),
                       const SizedBox(height: 6),
                       Text(
-                        '${data.cultureZone} · ${data.batchName}',
+                        '${appText(data.cultureZone)} · ${appText(data.batchName)}',
                         style: const TextStyle(
                           color: Colors.white,
                           fontSize: 12,
@@ -763,8 +769,8 @@ class _BatchMetrics extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Text(
-          'Batch Performance',
+        Text(
+          appText('Batch Performance'),
           style: TextStyle(
             color: Color(0xFF1C2E40),
             fontSize: 26,
@@ -803,7 +809,7 @@ class _BatchMetrics extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    metric.label,
+                    appText(metric.label),
                     style: const TextStyle(
                       color: Color(0xFF34495E),
                       fontSize: 11,
@@ -812,7 +818,7 @@ class _BatchMetrics extends StatelessWidget {
                   ),
                   const SizedBox(height: 10),
                   Text(
-                    metric.value,
+                    appText(metric.value),
                     style: const TextStyle(
                       color: Color(0xFF1C2E40),
                       fontSize: 16,
@@ -821,7 +827,7 @@ class _BatchMetrics extends StatelessWidget {
                   ),
                   const SizedBox(height: 4),
                   Text(
-                    metric.unit,
+                    appText(metric.unit),
                     style: const TextStyle(
                       color: Color(0xFF34495E),
                       fontSize: 12,
@@ -869,12 +875,12 @@ class _BiomassChart extends StatelessWidget {
                 child: const Icon(Icons.show_chart, color: Color(0xFF3D82E7)),
               ),
               const SizedBox(width: 12),
-              const Expanded(
+              Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      'Standing Biomass',
+                      appText('Standing Biomass'),
                       style: TextStyle(
                         color: Color(0xFF1C2E40),
                         fontSize: 22,
@@ -883,7 +889,7 @@ class _BiomassChart extends StatelessWidget {
                     ),
                     SizedBox(height: 4),
                     Text(
-                      'Current level and available 3-month projection',
+                      appText('Current level and available 3-month projection'),
                       style: TextStyle(
                         color: Color(0xFF34495E),
                         fontSize: 12,
@@ -912,7 +918,7 @@ class _BiomassChart extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        'CURRENT STANDING BIOMASS',
+                        appText('CURRENT STANDING BIOMASS'),
                         style: TextStyle(
                           color: Color(0xFF8FA0B5),
                           fontSize: 11,
@@ -921,7 +927,9 @@ class _BiomassChart extends StatelessWidget {
                       ),
                       SizedBox(height: 5),
                       Text(
-                        '${data.biomassValues.first.toStringAsFixed(1)} kg',
+                        appText(
+                          '${data.biomassValues.first.toStringAsFixed(1)} kg',
+                        ),
                         style: TextStyle(
                           color: Color(0xFF1C2E40),
                           fontSize: 13,
@@ -945,8 +953,8 @@ class _BiomassChart extends StatelessWidget {
                         borderRadius: BorderRadius.circular(14),
                         border: Border.all(color: const Color(0xFFB4EAD1)),
                       ),
-                      child: const Text(
-                        '↗ +193.6 kg (3-Mo)',
+                      child: Text(
+                        appText('↗ +193.6 kg (3-Mo)'),
                         style: TextStyle(
                           color: Color(0xFF168C52),
                           fontSize: 11,
@@ -955,7 +963,7 @@ class _BiomassChart extends StatelessWidget {
                       ),
                     ),
                     const SizedBox(height: 6),
-                    const Row(
+                    Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
                         _LegendDot(color: Color(0xFF2877DD), label: 'Actual'),
@@ -994,7 +1002,7 @@ class _LegendDot extends StatelessWidget {
         ),
         const SizedBox(width: 5),
         Text(
-          label,
+          appText(label),
           style: const TextStyle(
             color: Color(0xFF60758A),
             fontSize: 11,
@@ -1053,7 +1061,7 @@ class _BiomassChartPainter extends CustomPainter {
     );
     void label(String text, Offset offset) {
       final painter = TextPainter(
-        text: TextSpan(text: text, style: labelStyle),
+        text: TextSpan(text: appText(text), style: labelStyle),
         textDirection: TextDirection.ltr,
       )..layout();
       painter.paint(canvas, offset);
@@ -1142,7 +1150,7 @@ class _BiomassChartPainter extends CustomPainter {
     }
 
     final chartLabels = [
-      for (final value in safeValues) '${value.toStringAsFixed(1)} kg',
+      for (final value in safeValues) appText('${value.toStringAsFixed(1)} kg'),
     ];
     for (var i = 0; i < points.length; i++) {
       label(chartLabels[i], Offset(points[i].dx - 28, points[i].dy - 24));

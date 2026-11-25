@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:more_fish/core/localization/app_translations.dart';
 
 import '../../models/farm_sale.dart';
 
@@ -86,7 +87,9 @@ class _SaleDialogState extends State<SaleDialog> {
                     children: [
                       Expanded(
                         child: Text(
-                          isEditing ? 'Edit Fish Sale' : 'Add Fish Sale',
+                          appText(
+                            isEditing ? 'Edit Fish Sale' : 'Add Fish Sale',
+                          ),
                           style: const TextStyle(
                             color: Color(0xFF102A43),
                             fontFamily: 'serif',
@@ -108,8 +111,8 @@ class _SaleDialogState extends State<SaleDialog> {
                     ],
                   ),
                   const SizedBox(height: 4),
-                  const Text(
-                    'Enter the record details below',
+                  Text(
+                    appText('Enter the record details below'),
                     style: TextStyle(
                       color: Color(0xFF607690),
                       fontSize: 12,
@@ -167,7 +170,7 @@ class _SaleDialogState extends State<SaleDialog> {
                     children: [
                       OutlinedButton(
                         onPressed: () => Navigator.of(context).pop(),
-                        child: const Text('Cancel'),
+                        child: Text(appText('Cancel')),
                       ),
                       const SizedBox(width: 8),
                       FilledButton(
@@ -175,7 +178,7 @@ class _SaleDialogState extends State<SaleDialog> {
                         style: FilledButton.styleFrom(
                           backgroundColor: const Color(0xFF0F6D72),
                         ),
-                        child: Text(isEditing ? 'Update' : 'Save'),
+                        child: Text(appText(isEditing ? 'Update' : 'Save')),
                       ),
                     ],
                   ),
@@ -197,11 +200,14 @@ class _SaleDialogState extends State<SaleDialog> {
         isExpanded: true,
         decoration: _decoration('Select Stocking / Batch'),
         items: batches
-            .map((batch) => DropdownMenuItem(value: batch, child: Text(batch)))
+            .map(
+              (batch) =>
+                  DropdownMenuItem(value: batch, child: Text(appText(batch))),
+            )
             .toList(),
         onChanged: (value) => setState(() => _batch = value ?? _batch),
         validator: (value) =>
-            value == null || value.isEmpty ? 'Select a batch' : null,
+            value == null || value.isEmpty ? appText('Select a batch') : null,
       ),
     );
   }
@@ -256,7 +262,7 @@ class _SaleDialogState extends State<SaleDialog> {
           final parsed = integer
               ? int.tryParse(value?.trim() ?? '')
               : double.tryParse(value?.trim() ?? '');
-          return parsed == null || parsed <= 0 ? error : null;
+          return parsed == null || parsed <= 0 ? appText(error) : null;
         },
       ),
     );
@@ -271,7 +277,7 @@ class _SaleDialogState extends State<SaleDialog> {
     crossAxisAlignment: CrossAxisAlignment.start,
     children: [
       Text(
-        label,
+        appText(label),
         style: const TextStyle(
           color: Color(0xFF607690),
           fontSize: 11,
@@ -325,6 +331,7 @@ class _SaleDialogState extends State<SaleDialog> {
     );
   }
 
-  String _formatDate(DateTime date) =>
-      '${date.day.toString().padLeft(2, '0')}-${date.month.toString().padLeft(2, '0')}-${date.year}';
+  String _formatDate(DateTime date) => appText(
+    '${date.day.toString().padLeft(2, '0')}-${date.month.toString().padLeft(2, '0')}-${date.year}',
+  );
 }

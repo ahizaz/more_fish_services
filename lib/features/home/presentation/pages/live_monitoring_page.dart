@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
+import 'package:more_fish/core/localization/app_translations.dart';
 
 class LiveMonitoringPage extends StatefulWidget {
   const LiveMonitoringPage({super.key});
@@ -61,7 +63,7 @@ class _LiveMonitoringPageState extends State<LiveMonitoringPage> {
     return Scaffold(
       backgroundColor: const Color(0xFFF2F4F5),
       appBar: AppBar(
-        title: const Text('Live data Monitoring'),
+        title: Text('Live data Monitoring'.tr),
         backgroundColor: Colors.white,
         foregroundColor: Colors.black87,
         surfaceTintColor: Colors.transparent,
@@ -88,9 +90,9 @@ class _LiveMonitoringPageState extends State<LiveMonitoringPage> {
                       color: Color(0xFF00C853),
                     ),
                     const SizedBox(width: 7),
-                    const Expanded(
+                    Expanded(
                       child: Text(
-                        'Mohammad_S...',
+                        appText('Mohammad_S...'),
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                         style: TextStyle(
@@ -101,9 +103,9 @@ class _LiveMonitoringPageState extends State<LiveMonitoringPage> {
                       ),
                     ),
                     const SizedBox(width: 8),
-                    const Flexible(
+                    Flexible(
                       child: Text(
-                        '25 Nov 2026 10:29 AM',
+                        appText('25 Nov 2026 10:29 AM'),
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                         textAlign: TextAlign.right,
@@ -173,7 +175,7 @@ class _LiveMonitoringPageState extends State<LiveMonitoringPage> {
                 (pond) => DropdownMenuItem<String>(
                   value: pond,
                   child: Text(
-                    pond,
+                    appText(pond),
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                   ),
@@ -226,9 +228,9 @@ class _AeratorSwitchState extends State<_AeratorSwitch> {
         children: [
           Icon(Icons.circle, size: 17, color: statusColor),
           const SizedBox(width: 12),
-          const Expanded(
+          Expanded(
             child: Text(
-              'Aerator Switch',
+              'Aerator Switch'.tr,
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
               style: TextStyle(fontSize: 17, fontWeight: FontWeight.w700),
@@ -299,9 +301,9 @@ class _SensorCard extends StatelessWidget {
                   fontWeight: FontWeight.w700,
                 ),
                 children: [
-                  TextSpan(text: sensor.value),
+                  TextSpan(text: appText(sensor.value)),
                   TextSpan(
-                    text: ' ${sensor.unit}',
+                    text: ' ${appText(sensor.unit)}',
                     style: const TextStyle(fontWeight: FontWeight.w400),
                   ),
                 ],
@@ -310,7 +312,7 @@ class _SensorCard extends StatelessWidget {
           ),
           const SizedBox(height: 2),
           Text(
-            sensor.name,
+            sensor.name.tr,
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
             style: const TextStyle(
@@ -347,18 +349,18 @@ class _CleanerStatus extends StatelessWidget {
               ),
             ],
           ),
-          child: const Row(
+          child: Row(
             children: [
               Icon(Icons.circle, size: 17, color: Color(0xFF9E9E9E)),
               SizedBox(width: 12),
               Expanded(
                 child: Text(
-                  'Auto-Cleaner',
+                  'Auto-Cleaner'.tr,
                   style: TextStyle(fontSize: 17, fontWeight: FontWeight.w700),
                 ),
               ),
               Text(
-                'Off',
+                'Off'.tr,
                 style: TextStyle(
                   color: Color(0xFF9E9E9E),
                   fontSize: 16,
@@ -369,18 +371,19 @@ class _CleanerStatus extends StatelessWidget {
           ),
         ),
         const SizedBox(height: 10),
-        const Padding(
-          padding: EdgeInsets.symmetric(horizontal: 6),
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 6),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                'Last Run: 25 Nov 2026 10:00 AM',
+                'Last Run: 25 Nov 2026 10:00 AM'.tr,
                 style: TextStyle(fontSize: 13, fontWeight: FontWeight.w700),
               ),
               SizedBox(height: 6),
               Text(
-                'Every day at 2:00 PM Bangladesh time, the cleaner turns ON.',
+                'Every day at 2:00 PM Bangladesh time, the cleaner turns ON.'
+                    .tr,
                 style: TextStyle(
                   color: Color(0xFF666666),
                   fontSize: 12,
@@ -400,7 +403,7 @@ class _WaterWarning extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const Row(
+    return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text('⚠️ ', style: TextStyle(fontSize: 14)),
@@ -409,15 +412,14 @@ class _WaterWarning extends StatelessWidget {
             TextSpan(
               children: [
                 TextSpan(
-                  text: 'Warning: ',
+                  text: 'Warning: '.tr,
                   style: TextStyle(
                     color: Color(0xFFE53935),
                     fontWeight: FontWeight.w700,
                   ),
                 ),
                 TextSpan(
-                  text:
-                      'টিএসপি, জিপসাম, ভিনেগার অথবা গভীর নলকূপের পানি যোগ করুন।',
+                  text: 'Add TSP, gypsum, vinegar, or deep tube-well water.'.tr,
                   style: TextStyle(
                     color: Colors.black87,
                     fontWeight: FontWeight.w700,

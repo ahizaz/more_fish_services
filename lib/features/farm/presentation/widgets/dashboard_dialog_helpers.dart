@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:more_fish/core/localization/app_translations.dart';
 
 class ScrollableDialog extends StatelessWidget {
   const ScrollableDialog({
@@ -44,7 +45,7 @@ class ScrollableDialog extends StatelessWidget {
                   children: [
                     Expanded(
                       child: Text(
-                        title,
+                        appText(title),
                         style: TextStyle(
                           color: titleColor,
                           fontSize: 28,
@@ -98,7 +99,7 @@ class DialogSection extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            title,
+            appText(title),
             style: TextStyle(
               color: color,
               fontSize: 25,
@@ -138,7 +139,7 @@ class HistorySection extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            title,
+            appText(title),
             style: const TextStyle(
               color: Color(0xFF344A65),
               fontSize: 24,
@@ -157,7 +158,7 @@ class HistorySection extends StatelessWidget {
                 for (final header in headers)
                   DataColumn(
                     label: Text(
-                      header,
+                      appText(header),
                       style: const TextStyle(fontWeight: FontWeight.w800),
                     ),
                   ),
@@ -169,7 +170,7 @@ class HistorySection extends StatelessWidget {
                       for (final value in row)
                         DataCell(
                           Text(
-                            value,
+                            appText(value),
                             style: const TextStyle(
                               color: Color(0xFF344A65),
                               fontWeight: FontWeight.w600,
@@ -233,7 +234,7 @@ class LabeledField extends StatelessWidget {
       children: [
         if (label.isNotEmpty) ...[
           Text(
-            label,
+            appText(label),
             style: const TextStyle(
               color: Color(0xFF17283D),
               fontWeight: FontWeight.w800,
@@ -258,15 +259,16 @@ ButtonStyle primaryButtonStyle(Color color) {
 }
 
 String? requiredField(String? value) =>
-    value == null || value.trim().isEmpty ? 'Required' : null;
+    value == null || value.trim().isEmpty ? appText('Required') : null;
 
-String formatDialogDate(DateTime date) =>
-    '${date.day.toString().padLeft(2, '0')}-'
-    '${date.month.toString().padLeft(2, '0')}-${date.year}';
+String formatDialogDate(DateTime date) => appText(
+  '${date.day.toString().padLeft(2, '0')}-'
+  '${date.month.toString().padLeft(2, '0')}-${date.year}',
+);
 
 InputDecoration dialogFieldDecoration(String? hint) {
   return InputDecoration(
-    hintText: hint,
+    hintText: hint == null ? null : appText(hint),
     filled: true,
     fillColor: const Color(0xF5FFFFFF),
     contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
