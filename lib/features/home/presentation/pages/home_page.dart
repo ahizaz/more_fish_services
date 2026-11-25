@@ -5,10 +5,18 @@ import 'package:flutter/material.dart';
 import '../../../../core/widgets/common_container.dart';
 import '../../../farm/presentation/pages/farm_dashboard_page.dart';
 import '../../../farm/presentation/pages/accounting_dashboard_page.dart';
+import '../../../login/presentation/pages/login_page.dart';
 import 'live_monitoring_page.dart';
 
-class HomePage extends StatelessWidget {
+class HomePage extends StatefulWidget {
   const HomePage({super.key});
+
+  @override
+  State<HomePage> createState() => _HomePageState();
+}
+
+class _HomePageState extends State<HomePage> {
+  bool _isLoggedIn = false;
 
   @override
   Widget build(BuildContext context) {
@@ -22,12 +30,29 @@ class HomePage extends StatelessWidget {
               const SizedBox(height: 10),
               const _CombinedTopCard(),
               const SizedBox(height: 16),
-              const _FeatureCards(),
+              _FeatureCards(onFeatureSelected: _openFeature),
             ],
           ),
         ),
       ),
     );
+  }
+
+  Future<void> _openFeature(WidgetBuilder destinationBuilder) async {
+    if (!_isLoggedIn) {
+      final loggedIn = await showDialog<bool>(
+        context: context,
+        barrierDismissible: true,
+        builder: (_) => const LoginPage(),
+      );
+      if (loggedIn != true || !mounted) return;
+      setState(() => _isLoggedIn = true);
+    }
+
+    if (!mounted) return;
+    Navigator.of(
+      context,
+    ).push(MaterialPageRoute<void>(builder: destinationBuilder));
   }
 }
 
@@ -303,31 +328,36 @@ class _CompanyCard extends StatelessWidget {
 }
 
 class _FeatureCards extends StatelessWidget {
-  const _FeatureCards();
+  const _FeatureCards({required this.onFeatureSelected});
+
+  final Future<void> Function(WidgetBuilder) onFeatureSelected;
 
   @override
   Widget build(BuildContext context) {
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
-      children: const [
+      children: [
         Expanded(
           child: _FeatureCard(
             iconAsset: 'assets/live_data_monitoring.png',
             label: 'Live data Monitoring',
+            onFeatureSelected: onFeatureSelected,
           ),
         ),
-        SizedBox(width: 8),
+        const SizedBox(width: 8),
         Expanded(
           child: _FeatureCard(
             iconAsset: 'assets/dashboard.png',
             label: 'Farm Management Dashboard',
+            onFeatureSelected: onFeatureSelected,
           ),
         ),
-        SizedBox(width: 8),
+        const SizedBox(width: 8),
         Expanded(
           child: _FeatureCard(
             iconAsset: 'assets/accounting.png',
             label: 'Farm Accounting',
+            onFeatureSelected: onFeatureSelected,
           ),
         ),
       ],
@@ -336,34 +366,30 @@ class _FeatureCards extends StatelessWidget {
 }
 
 class _FeatureCard extends StatelessWidget {
-  const _FeatureCard({required this.iconAsset, required this.label});
+  const _FeatureCard({
+    required this.iconAsset,
+    required this.label,
+    required this.onFeatureSelected,
+  });
 
   final String iconAsset;
   final String label;
+  final Future<void> Function(WidgetBuilder) onFeatureSelected;
 
   @override
   Widget build(BuildContext context) {
+    final WidgetBuilder? destinationBuilder = switch (label) {
+      'Live data Monitoring' => (_) => const LiveMonitoringPage(),
+      'Farm Management Dashboard' => (_) => const FarmDashboardPage(),
+      'Farm Accounting' => (_) => const AccountingDashboardPage(),
+      _ => null,
+    };
+
     return InkWell(
       borderRadius: BorderRadius.circular(12),
-      onTap: label == 'Live data Monitoring'
-          ? () => Navigator.of(context).push(
-              MaterialPageRoute<void>(
-                builder: (_) => const LiveMonitoringPage(),
-              ),
-            )
-          : label == 'Farm Management Dashboard'
-          ? () => Navigator.of(context).push(
-              MaterialPageRoute<void>(
-                builder: (_) => const FarmDashboardPage(),
-              ),
-            )
-          : label == 'Farm Accounting'
-          ? () => Navigator.of(context).push(
-              MaterialPageRoute<void>(
-                builder: (_) => const AccountingDashboardPage(),
-              ),
-            )
-          : null,
+      onTap: destinationBuilder == null
+          ? null
+          : () => onFeatureSelected(destinationBuilder),
       child: CommonContainer(
         height: 116,
         borderRadius: BorderRadius.circular(12),
