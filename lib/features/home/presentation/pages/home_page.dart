@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import '../../../../core/widgets/common_container.dart';
 import '../../../farm/presentation/pages/farm_dashboard_page.dart';
 import '../../../farm/presentation/pages/accounting_dashboard_page.dart';
+import 'live_monitoring_page.dart';
 
 class HomePage extends StatelessWidget {
   const HomePage({super.key});
@@ -344,7 +345,13 @@ class _FeatureCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return InkWell(
       borderRadius: BorderRadius.circular(12),
-      onTap: label == 'Farm Management Dashboard'
+      onTap: label == 'Live data Monitoring'
+          ? () => Navigator.of(context).push(
+              MaterialPageRoute<void>(
+                builder: (_) => const LiveMonitoringPage(),
+              ),
+            )
+          : label == 'Farm Management Dashboard'
           ? () => Navigator.of(context).push(
               MaterialPageRoute<void>(
                 builder: (_) => const FarmDashboardPage(),
