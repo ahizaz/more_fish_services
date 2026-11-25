@@ -17,23 +17,54 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   bool _isLoggedIn = false;
+  int _selectedIndex = 0;
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: const Color(0xFFF1F5F8),
-      body: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.fromLTRB(24, 12, 24, 24),
-          child: Column(
-            children: [
-              const SizedBox(height: 10),
-              const _CombinedTopCard(),
-              const SizedBox(height: 16),
-              _FeatureCards(onFeatureSelected: _openFeature),
-            ],
+      body: _selectedIndex == 0
+          ? SafeArea(
+              child: Padding(
+                padding: const EdgeInsets.fromLTRB(24, 12, 24, 24),
+                child: Column(
+                  children: [
+                    const SizedBox(height: 10),
+                    const _CombinedTopCard(),
+                    const SizedBox(height: 16),
+                    _FeatureCards(onFeatureSelected: _openFeature),
+                  ],
+                ),
+              ),
+            )
+          : Center(
+              child: Text(
+                ['Home', 'Notifications', 'Profile', 'More'][_selectedIndex],
+                style: const TextStyle(
+                  color: Color(0xFF111111),
+                  fontSize: 20,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+            ),
+      bottomNavigationBar: BottomNavigationBar(
+        backgroundColor: const Color(0xFFEBFFFF),
+        currentIndex: _selectedIndex,
+        onTap: (index) => setState(() => _selectedIndex = index),
+        type: BottomNavigationBarType.fixed,
+        selectedItemColor: const Color(0xFF0370C3),
+        unselectedItemColor: Colors.blueGrey.shade300,
+        elevation: 4,
+        selectedLabelStyle: const TextStyle(fontWeight: FontWeight.bold),
+        items: const [
+          BottomNavigationBarItem(icon: Icon(Icons.home), label: 'home'),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.notifications),
+            label: 'Notifications',
           ),
-        ),
+          BottomNavigationBarItem(icon: Icon(Icons.person), label: 'Profile'),
+          BottomNavigationBarItem(icon: Icon(Icons.menu), label: 'More'),
+        ],
       ),
     );
   }
