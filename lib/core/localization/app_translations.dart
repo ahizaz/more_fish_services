@@ -66,6 +66,12 @@ class AppTranslations extends Translations {
           'পাসওয়ার্ড কমপক্ষে ৫ অক্ষরের হতে হবে',
       'Enter your email or phone': 'আপনার ইমেইল অথবা ফোন লিখুন',
       'Enter a valid email or phone': 'সঠিক ইমেইল অথবা ফোন লিখুন',
+      'Login failed. Please check your credentials and try again.':
+          'লগইন ব্যর্থ হয়েছে। আপনার তথ্য যাচাই করে আবার চেষ্টা করুন।',
+      'The login request timed out. Please try again.':
+          'লগইনের সময়সীমা শেষ হয়েছে। আবার চেষ্টা করুন।',
+      'Could not connect to the server. Please try again.':
+          'সার্ভারের সাথে সংযোগ করা যায়নি। আবার চেষ্টা করুন।',
       'MoreFish - Fish Services': 'মোরফিশ - মাছের সেবা',
       'Add TSP, gypsum, vinegar, or deep tube-well water.':
           'টিএসপি, জিপসাম, ভিনেগার অথবা গভীর নলকূপের পানি যোগ করুন।',

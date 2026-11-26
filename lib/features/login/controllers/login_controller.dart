@@ -1,4 +1,9 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
+
+import '../../../core/api/api.dart';
 
 class LoginController extends ChangeNotifier {
   final formKey = GlobalKey<FormState>();
@@ -7,9 +12,11 @@ class LoginController extends ChangeNotifier {
 
   bool _showPassword = false;
   bool _isSubmitting = false;
+  String? _loginError;
 
   bool get showPassword => _showPassword;
   bool get isSubmitting => _isSubmitting;
+  String? get loginError => _loginError;
 
   void togglePasswordVisibility() {
     _showPassword = !_showPassword;
@@ -22,10 +29,25 @@ class LoginController extends ChangeNotifier {
     }
 
     _isSubmitting = true;
+    _loginError = null;
     notifyListeners();
     try {
-      // Replace this local pass-through with the authentication API call.
+      final response = await Api.login(
+        email: emailController.text.trim(),
+        password: passwordController.text,
+      );
+      if (response.statusCode < 200 || response.statusCode >= 300) {
+        _loginError =
+            'Login failed. Please check your credentials and try again.';
+        return false;
+      }
       return true;
+    } on TimeoutException {
+      _loginError = 'The login request timed out. Please try again.';
+      return false;
+    } on http.ClientException {
+      _loginError = 'Could not connect to the server. Please try again.';
+      return false;
     } finally {
       _isSubmitting = false;
       notifyListeners();

@@ -167,7 +167,17 @@ class _LoginPageState extends State<LoginPage> {
 
   Future<void> _submit() async {
     final canContinue = await _controller.login();
-    if (!mounted || !canContinue) {
+    if (!mounted) {
+      return;
+    }
+
+    if (!canContinue) {
+      final error = _controller.loginError;
+      if (error != null) {
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text(error.tr)));
+      }
       return;
     }
 
