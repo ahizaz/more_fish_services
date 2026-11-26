@@ -211,6 +211,13 @@ class AppTranslations extends Translations {
       'ACTION': 'কার্যক্রম',
       'Edit': 'সম্পাদনা',
       'Stocking History': 'মাছ মজুতের ইতিহাস',
+      'View': 'দেখুন',
+      'Hide': 'লুকান',
+      'No stocking history available.': 'মাছ মজুতের কোনো ইতিহাস নেই।',
+      'Failed to load stocking history. Please try again.':
+          'মাছ মজুতের ইতিহাস লোড করা যায়নি। আবার চেষ্টা করুন।',
+      'Failed to save stocking. Please try again.':
+          'মাছ মজুত সংরক্ষণ করা যায়নি। আবার চেষ্টা করুন।',
       'BATCH NAME': 'ব্যাচের নাম',
       'Optional': 'ঐচ্ছিক',
       'COUNT *': 'সংখ্যা *',

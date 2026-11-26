@@ -156,4 +156,92 @@ void main() {
     expect(pond?.imageUrl, 'https://example.test/pond.jpg');
     client.close();
   });
+
+  test(
+    'saveStockingApi posts the payload and uses the server ID for history',
+    () async {
+      SharedPreferences.setMockInitialValues({
+        Api.authorizationKey: 'test-auth-token',
+      });
+      final client = MockClient((request) async {
+        if (request.method == 'POST') {
+          expect(request.url, Api.stockingsUri);
+          final body = jsonDecode(request.body) as Map<String, dynamic>;
+          expect(body['space'], 10);
+          expect(body['species'], 'Tilapia');
+          expect(body['batch_name'], 'North batch');
+          expect(body['stocked_count'], 1200);
+          expect(body['initial_weight_g'], 25.5);
+          expect(body['stocking_date'], '2026-11-26');
+          expect(body['seed_cost_bdt'], '');
+          expect(
+            body['client_request_id'],
+            matches(
+              RegExp(
+                r'^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$',
+              ),
+            ),
+          );
+          return http.Response(
+            jsonEncode({
+              'id': 42,
+              'space': 10,
+              'space_name': 'North Pond',
+              'pond_name': 'North Pond',
+              'farm_name': 'Aqua Farm',
+              'species': 'Tilapia',
+              'batch_name': 'North batch',
+              'stocked_count': 1200,
+              'initial_weight_g': '25.5',
+              'stocking_date': '2026-11-26',
+            }),
+            201,
+          );
+        }
+
+        expect(request.method, 'GET');
+        expect(request.url, Api.stockingUri('42'));
+        return http.Response(
+          jsonEncode({
+            'id': 42,
+            'space': 10,
+            'space_name': 'North Pond',
+            'pond_name': 'North Pond',
+            'farm_name': 'Aqua Farm',
+            'species': 'Tilapia',
+            'batch_name': 'North batch',
+            'stocked_count': '1250',
+            'initial_weight_g': '26.75',
+            'stocking_date': '2026-11-26',
+          }),
+          200,
+        );
+      });
+
+      final controller = FarmDashboardController();
+      final created = await controller.saveStockingApi(
+        Stocking(
+          id: 'temporary-id',
+          spaceId: '10',
+          farmName: 'Aqua Farm',
+          pondName: 'North Pond',
+          species: 'Tilapia',
+          batchName: 'North batch',
+          count: 1200,
+          initialWeight: 25.5,
+          date: DateTime(2026, 11, 26),
+        ),
+        client: client,
+      );
+
+      expect(created?.id, '42');
+      final history = await controller.loadStockingHistory([
+        created!,
+      ], client: client);
+      expect(history?.single.id, '42');
+      expect(history?.single.count, 1250);
+      expect(history?.single.initialWeight, 26.75);
+      client.close();
+    },
+  );
 }

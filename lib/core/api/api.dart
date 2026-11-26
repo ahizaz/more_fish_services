@@ -12,8 +12,11 @@ class Api {
   static Uri get loginUri => Uri.parse('$baseUrl/auth/login/');
   static Uri get farmsUri => Uri.parse('$baseUrl/fish_care/farms/');
   static Uri get pondsUri => Uri.parse('$baseUrl/fish_care/ponds/');
+  static Uri get stockingsUri => Uri.parse('$baseUrl/fish_care/stockings/');
   static Uri pondUri(String id) =>
       Uri.parse('$baseUrl/fish_care/ponds/${Uri.encodeComponent(id)}/');
+  static Uri stockingUri(String id) =>
+      Uri.parse('$baseUrl/fish_care/stockings/${Uri.encodeComponent(id)}/');
 
   static Future<http.Response> getFarms({http.Client? client}) async {
     final request = client?.get ?? http.get;
@@ -38,6 +41,45 @@ class Api {
     final request = client?.get ?? http.get;
     return request(
       pondUri(id),
+      headers: await authorizationHeaders(),
+    ).timeout(const Duration(seconds: 15));
+  }
+
+  static Future<http.Response> createStocking({
+    required int space,
+    required String species,
+    required String batchName,
+    required int stockedCount,
+    required double initialWeightG,
+    required String stockingDate,
+    required String seedCostBdt,
+    required String clientRequestId,
+    http.Client? client,
+  }) async {
+    final request = client?.post ?? http.post;
+    return request(
+      stockingsUri,
+      headers: await authorizationHeaders(),
+      body: jsonEncode({
+        'space': space,
+        'species': species,
+        'batch_name': batchName,
+        'stocked_count': stockedCount,
+        'initial_weight_g': initialWeightG,
+        'stocking_date': stockingDate,
+        'seed_cost_bdt': seedCostBdt,
+        'client_request_id': clientRequestId,
+      }),
+    ).timeout(const Duration(seconds: 15));
+  }
+
+  static Future<http.Response> getStocking({
+    required String id,
+    http.Client? client,
+  }) async {
+    final request = client?.get ?? http.get;
+    return request(
+      stockingUri(id),
       headers: await authorizationHeaders(),
     ).timeout(const Duration(seconds: 15));
   }

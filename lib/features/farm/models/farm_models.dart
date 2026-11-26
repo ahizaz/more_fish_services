@@ -40,6 +40,7 @@ class Stocking {
     required this.count,
     required this.initialWeight,
     required this.date,
+    this.spaceId,
   });
 
   final String id;
@@ -50,6 +51,7 @@ class Stocking {
   final int count;
   final double initialWeight;
   final DateTime date;
+  final String? spaceId;
 }
 
 class WeeklyUpdate {

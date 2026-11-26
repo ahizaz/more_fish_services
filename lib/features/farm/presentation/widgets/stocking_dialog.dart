@@ -11,12 +11,14 @@ class StockingDialog extends StatefulWidget {
     required this.ponds,
     required this.stockings,
     required this.selectedFarmId,
+    required this.onLoadHistory,
   });
 
   final List<Farm> farms;
   final List<Pond> ponds;
   final List<Stocking> stockings;
   final String? selectedFarmId;
+  final Future<List<Stocking>?> Function(List<Stocking>) onLoadHistory;
 
   @override
   State<StockingDialog> createState() => _StockingDialogState();
@@ -31,6 +33,10 @@ class _StockingDialogState extends State<StockingDialog> {
   late String _farmId;
   String? _pondId;
   DateTime _date = DateTime.now();
+  bool _showHistory = false;
+  bool _historyLoading = false;
+  String? _historyError;
+  List<Stocking> _history = [];
 
   @override
   void initState() {
@@ -146,32 +152,73 @@ class _StockingDialogState extends State<StockingDialog> {
               ),
             ),
             const SizedBox(height: 18),
-            HistorySection(
-              title: appText(
-                '${appText('Stocking History')} (${widget.stockings.length})',
+            Align(
+              alignment: Alignment.centerRight,
+              child: OutlinedButton(
+                onPressed: _historyLoading ? null : _toggleHistory,
+                child: Text(appText(_showHistory ? 'Hide' : 'View')),
               ),
-              headers: const [
-                'DATE',
-                'BATCH / SPECIES',
-                'COUNT',
-                'INIT WT',
-                'ACTION',
-              ],
-              rows: [
-                for (final item in widget.stockings)
-                  [
-                    formatDialogDate(item.date),
-                    '${item.batchName} (${item.species})',
-                    item.count.toString(),
-                    '${item.initialWeight.toStringAsFixed(3)} g',
-                    'Edit',
-                  ],
-              ],
             ),
+            if (_showHistory) ...[
+              const SizedBox(height: 12),
+              if (_historyLoading)
+                const Center(child: CircularProgressIndicator())
+              else if (_historyError != null)
+                Text(
+                  appText(_historyError!),
+                  style: const TextStyle(color: Colors.red),
+                )
+              else if (_history.isEmpty)
+                Text(appText('No stocking history available.'))
+              else
+                HistorySection(
+                  title: appText(
+                    '${appText('Stocking History')} (${_history.length})',
+                  ),
+                  headers: const [
+                    'DATE',
+                    'BATCH / SPECIES',
+                    'COUNT',
+                    'INIT WT',
+                  ],
+                  rows: [
+                    for (final item in _history)
+                      [
+                        formatDialogDate(item.date),
+                        '${item.batchName} (${item.species})',
+                        item.count.toString(),
+                        '${item.initialWeight.toStringAsFixed(3)} g',
+                      ],
+                  ],
+                ),
+            ],
           ],
         ),
       ),
     );
+  }
+
+  Future<void> _toggleHistory() async {
+    if (_showHistory) {
+      setState(() => _showHistory = false);
+      return;
+    }
+
+    setState(() {
+      _showHistory = true;
+      _historyLoading = true;
+      _historyError = null;
+    });
+    final result = await widget.onLoadHistory(widget.stockings);
+    if (!mounted) return;
+    setState(() {
+      _historyLoading = false;
+      if (result == null) {
+        _historyError = 'Failed to load stocking history. Please try again.';
+      } else {
+        _history = result;
+      }
+    });
   }
 
   Widget _dateField() {
@@ -256,6 +303,7 @@ class _StockingDialogState extends State<StockingDialog> {
     Navigator.of(context).pop(
       Stocking(
         id: 'stocking-${DateTime.now().millisecondsSinceEpoch}',
+        spaceId: _pondId!,
         farmName: widget.farms.firstWhere((farm) => farm.id == _farmId).name,
         pondName: widget.ponds.firstWhere((pond) => pond.id == _pondId).name,
         species: _species.text.trim(),

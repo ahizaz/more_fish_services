@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
+import 'dart:math';
 
 import 'package:flutter/foundation.dart';
 import 'package:get/get.dart';
@@ -36,18 +37,7 @@ class FarmDashboardController extends GetxController {
     ),
   ].obs;
 
-  final RxList<Stocking> stockings = <Stocking>[
-    Stocking(
-      id: 'stocking-1',
-      farmName: 'AquaNova Fish Farm',
-      pondName: 'Blue Pearl Pond',
-      species: 'Tilapia',
-      batchName: 'AquaNova Tilapia Batch 01',
-      count: 1500,
-      initialWeight: 150,
-      date: DateTime(2026, 8, 1),
-    ),
-  ].obs;
+  final RxList<Stocking> stockings = <Stocking>[].obs;
 
   final RxList<WeeklyUpdate> weeklyUpdates = List.generate(
     10,
@@ -304,10 +294,163 @@ class FarmDashboardController extends GetxController {
     }
   }
 
-  Future<bool> saveStockingApi(Stocking stocking) async => true;
+  Future<Stocking?> saveStockingApi(
+    Stocking stocking, {
+    http.Client? client,
+  }) async {
+    final space = int.tryParse(stocking.spaceId ?? '');
+    if (space == null) {
+      debugPrint(
+        'Stocking API request skipped: pond/space ID must be an integer.',
+      );
+      return null;
+    }
+
+    final clientRequestId = _newClientRequestId();
+    final requestBody = {
+      'space': space,
+      'species': stocking.species,
+      'batch_name': stocking.batchName,
+      'stocked_count': stocking.count,
+      'initial_weight_g': stocking.initialWeight,
+      'stocking_date': _apiDate(stocking.date),
+      'seed_cost_bdt': '',
+      'client_request_id': clientRequestId,
+    };
+    debugPrint('POST ${Api.stockingsUri}');
+    debugPrint('Stocking request body: ${jsonEncode(requestBody)}');
+
+    try {
+      final response = await Api.createStocking(
+        space: space,
+        species: stocking.species,
+        batchName: stocking.batchName,
+        stockedCount: stocking.count,
+        initialWeightG: stocking.initialWeight,
+        stockingDate: _apiDate(stocking.date),
+        seedCostBdt: '',
+        clientRequestId: clientRequestId,
+        client: client,
+      );
+      debugPrint(
+        'Stocking API response: ${response.statusCode} ${response.body}',
+      );
+      if (response.statusCode < 200 || response.statusCode >= 300) return null;
+
+      return _stockingFromJson(jsonDecode(response.body), fallback: stocking);
+    } on FormatException catch (error) {
+      debugPrint('Stocking API returned invalid data: $error');
+      return null;
+    } on TimeoutException catch (error) {
+      debugPrint('Stocking API request timed out: $error');
+      return null;
+    } on http.ClientException catch (error) {
+      debugPrint('Stocking API connection failed: $error');
+      return null;
+    } on StateError catch (error) {
+      debugPrint('Stocking API authorization failed: $error');
+      return null;
+    }
+  }
+
+  Future<List<Stocking>?> loadStockingHistory(
+    List<Stocking> stockings, {
+    http.Client? client,
+  }) async {
+    final history = <Stocking>[];
+    for (final stocking in stockings) {
+      debugPrint('GET ${Api.stockingUri(stocking.id)}');
+      try {
+        final response = await Api.getStocking(id: stocking.id, client: client);
+        debugPrint(
+          'Stocking detail API response: '
+          '${response.statusCode} ${response.body}',
+        );
+        if (response.statusCode < 200 || response.statusCode >= 300) {
+          return null;
+        }
+        history.add(
+          _stockingFromJson(jsonDecode(response.body), fallback: stocking),
+        );
+      } on FormatException catch (error) {
+        debugPrint('Stocking detail API returned invalid data: $error');
+        return null;
+      } on TimeoutException catch (error) {
+        debugPrint('Stocking detail API request timed out: $error');
+        return null;
+      } on http.ClientException catch (error) {
+        debugPrint('Stocking detail API connection failed: $error');
+        return null;
+      } on StateError catch (error) {
+        debugPrint('Stocking detail API authorization failed: $error');
+        return null;
+      }
+    }
+    return history;
+  }
+
   Future<bool> saveWeeklyUpdateApi(WeeklyUpdate update) async => true;
   Future<bool> saveFeedInventoryApi(FeedInventory inventory) async => true;
   Future<bool> saveFeedStockApi(FeedStockAddition addition) async => true;
+}
+
+Stocking _stockingFromJson(dynamic value, {required Stocking fallback}) {
+  if (value is Map<String, dynamic> && value['data'] is Map<String, dynamic>) {
+    value = value['data'];
+  }
+  if (value is! Map<String, dynamic>) {
+    throw const FormatException('Invalid stocking item.');
+  }
+
+  final count = _numberValue(value['stocked_count'])?.toInt();
+  final weight = _numberValue(value['initial_weight_g']);
+  final dateValue = value['stocking_date'];
+  final date = dateValue is String ? DateTime.tryParse(dateValue) : null;
+  final spaceValue = value['space'];
+  return Stocking(
+    id: _idString(value['id'], 'stocking'),
+    farmName: value['farm_name'] is String
+        ? value['farm_name'] as String
+        : fallback.farmName,
+    pondName: value['pond_name'] is String
+        ? value['pond_name'] as String
+        : fallback.pondName,
+    species: value['species'] is String
+        ? value['species'] as String
+        : fallback.species,
+    batchName: value['batch_name'] is String
+        ? value['batch_name'] as String
+        : fallback.batchName,
+    count: count ?? fallback.count,
+    initialWeight: weight?.toDouble() ?? fallback.initialWeight,
+    date: date ?? fallback.date,
+    spaceId: spaceValue == null
+        ? fallback.spaceId
+        : _idString(spaceValue, 'stocking space'),
+  );
+}
+
+num? _numberValue(dynamic value) {
+  if (value is num) return value;
+  if (value is String) return num.tryParse(value);
+  return null;
+}
+
+String _apiDate(DateTime date) =>
+    '${date.year.toString().padLeft(4, '0')}-'
+    '${date.month.toString().padLeft(2, '0')}-'
+    '${date.day.toString().padLeft(2, '0')}';
+
+String _newClientRequestId() {
+  final random = Random.secure();
+  final bytes = List<int>.generate(16, (_) => random.nextInt(256));
+  bytes[6] = (bytes[6] & 0x0f) | 0x40;
+  bytes[8] = (bytes[8] & 0x3f) | 0x80;
+  final hex = bytes.map((byte) => byte.toRadixString(16).padLeft(2, '0'));
+  final value = hex.join();
+  return '${value.substring(0, 8)}-${value.substring(8, 12)}-'
+      '${value.substring(12, 16)}-${value.substring(16, 20)}-'
+      '${value.substring(20)}';
 }
 
 List<dynamic> _decodeCollection(String body, String endpoint) {

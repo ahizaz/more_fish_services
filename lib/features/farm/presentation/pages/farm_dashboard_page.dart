@@ -244,11 +244,25 @@ class _FarmDashboardPageState extends State<FarmDashboardPage> {
         ponds: controller.ponds,
         stockings: controller.stockings,
         selectedFarmId: controller.selectedFarmId.value,
+        onLoadHistory: controller.loadStockingHistory,
       ),
     );
     if (stocking != null && mounted) {
-      await controller.saveStockingApi(stocking);
-      controller.upsertStocking(stocking);
+      final savedStocking = await controller.saveStockingApi(stocking);
+      if (!mounted) return;
+      if (savedStocking == null) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              appText('Failed to save stocking. Please try again.'),
+            ),
+            backgroundColor: const Color(0xFFFFE1E1),
+            behavior: SnackBarBehavior.floating,
+          ),
+        );
+        return;
+      }
+      controller.upsertStocking(savedStocking);
     }
   }
 
