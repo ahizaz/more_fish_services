@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:more_fish/core/api/api.dart';
 import 'package:more_fish/core/localization/app_translations.dart';
 
 import '../../models/farm_models.dart';
@@ -38,6 +39,22 @@ class FarmPondCard extends StatelessWidget {
                 ),
                 child: Row(
                   children: [
+                    if (pond.imageUrl != null && pond.imageUrl!.isNotEmpty) ...[
+                      ClipRRect(
+                        borderRadius: BorderRadius.circular(8),
+                        child: Image.network(
+                          _pondImageUrl(pond.imageUrl!),
+                          width: 42,
+                          height: 42,
+                          fit: BoxFit.cover,
+                          errorBuilder: (_, _, _) => const Icon(
+                            Icons.broken_image_outlined,
+                            color: Colors.white,
+                          ),
+                        ),
+                      ),
+                      const SizedBox(width: 8),
+                    ],
                     Expanded(
                       child: Text(
                         appText(pond.name),
@@ -60,7 +77,9 @@ class FarmPondCard extends StatelessWidget {
                         borderRadius: BorderRadius.circular(20),
                       ),
                       child: Text(
-                        '${pond.area} ${appText(pond.areaUnit)}',
+                        pond.area.isEmpty
+                            ? appText(pond.areaUnit)
+                            : '${pond.area} ${appText(pond.areaUnit)}',
                         style: const TextStyle(
                           color: Colors.white,
                           fontSize: 10,
@@ -262,6 +281,12 @@ class FarmPondCard extends StatelessWidget {
       },
     );
   }
+}
+
+String _pondImageUrl(String imageUrl) {
+  final uri = Uri.tryParse(imageUrl);
+  if (uri == null || uri.hasScheme) return imageUrl;
+  return Uri.parse(Api.baseUrl).resolveUri(uri).toString();
 }
 
 class _SensorTile extends StatelessWidget {

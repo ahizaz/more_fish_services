@@ -26,11 +26,13 @@ class _CreatePondDialogState extends State<CreatePondDialog> {
   late String _farmId;
   String _areaUnit = 'DECIMAL';
   String? _imageName;
+  String? _imagePath;
 
   @override
   void initState() {
     super.initState();
     _farmId = widget.selectedFarmId ?? widget.farms.first.id;
+    _area.text = '2.00';
   }
 
   @override
@@ -46,7 +48,11 @@ class _CreatePondDialogState extends State<CreatePondDialog> {
       withData: false,
     );
     if (result != null && result.files.isNotEmpty && mounted) {
-      setState(() => _imageName = result.files.single.name);
+      final file = result.files.single;
+      setState(() {
+        _imageName = file.name;
+        _imagePath = file.path;
+      });
     }
   }
 
@@ -179,8 +185,8 @@ class _CreatePondDialogState extends State<CreatePondDialog> {
                                 child: Text(appText('ACRE')),
                               ),
                               DropdownMenuItem(
-                                value: 'SQUARE_METER',
-                                child: Text(appText('SQUARE_METER')),
+                                value: 'HECTARE',
+                                child: Text(appText('HECTARE')),
                               ),
                             ],
                             onChanged: (value) =>
@@ -262,11 +268,12 @@ class _CreatePondDialogState extends State<CreatePondDialog> {
                                 farmId: _farmId,
                                 name: _name.text.trim(),
                                 area: _area.text.trim().isEmpty
-                                    ? '0'
+                                    ? ''
                                     : _area.text.trim(),
                                 areaUnit: _areaUnit,
                                 status: 'Active',
                                 imageName: _imageName,
+                                imagePath: _imagePath,
                               ),
                             );
                           }

@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:io';
 
 import 'package:flutter_test/flutter_test.dart';
 import 'package:http/http.dart' as http;
@@ -56,6 +57,49 @@ void main() {
     final response = await Api.createFarm(
       name: 'izaz',
       location: 'mirpur',
+      client: client,
+    );
+
+    expect(response.statusCode, 201);
+    client.close();
+  });
+
+  test('createPond posts authenticated multipart form data', () async {
+    SharedPreferences.setMockInitialValues({
+      Api.authorizationKey: 'test-auth-token',
+    });
+    final tempDirectory = await Directory.systemTemp.createTemp(
+      'pond-api-test-',
+    );
+    addTearDown(() => tempDirectory.delete(recursive: true));
+    final imageFile = File(
+      '${tempDirectory.path}${Platform.pathSeparator}pond.jpg',
+    );
+    await imageFile.writeAsString('image-data');
+    final client = MockClient((request) async {
+      expect(request.method, 'POST');
+      expect(request.url, Api.pondsUri);
+      expect(request.headers['authorization'], 'Token test-auth-token');
+      expect(
+        request.headers['content-type'],
+        startsWith('multipart/form-data;'),
+      );
+      final body = request.body;
+      expect(body, contains('name="farm"\r\n\r\n42'));
+      expect(body, contains('name="name"\r\n\r\nBlue Pearl Pond'));
+      expect(body, contains('name="area"\r\n\r\n2.00'));
+      expect(body, contains('name="area_unit"\r\n\r\nDECIMAL'));
+      expect(body, contains('name="image"; filename="pond.jpg"'));
+      expect(body, contains('image-data'));
+      return http.Response('{}', 201);
+    });
+
+    final response = await Api.createPond(
+      farm: 42,
+      name: 'Blue Pearl Pond',
+      area: '2.00',
+      areaUnit: 'DECIMAL',
+      imagePath: imageFile.path,
       client: client,
     );
 

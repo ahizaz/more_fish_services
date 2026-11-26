@@ -97,6 +97,10 @@ class AppTranslations extends Translations {
       'Failed to create farm. Please try again.':
           'খামার তৈরি করা যায়নি। আবার চেষ্টা করুন।',
       'Pond created successfully.': 'পুকুর সফলভাবে তৈরি হয়েছে।',
+      'Failed to create pond. Please try again.':
+          'পুকুর তৈরি করা যায়নি। আবার চেষ্টা করুন।',
+      'Create a farm before adding a pond.':
+          'পুকুর যোগ করার আগে একটি খামার তৈরি করুন।',
       'FINANCIAL HUB': 'আর্থিক কেন্দ্র',
       'Open Accounting Dashboard': 'হিসাব ড্যাশবোর্ড খুলুন',
       'Farm Performance Score': 'খামারের কার্যকারিতা স্কোর',
@@ -146,6 +150,7 @@ class AppTranslations extends Translations {
       'AREA UNIT': 'আয়তনের একক',
       'DECIMAL': 'শতাংশ',
       'ACRE': 'একর',
+      'HECTARE': 'হেক্টর',
       'SQUARE_METER': 'বর্গমিটার',
       'POND IMAGE (OPTIONAL)': 'পুকুরের ছবি (ঐচ্ছিক)',
       'Choose File': 'ফাইল নির্বাচন করুন',

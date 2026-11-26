@@ -169,7 +169,7 @@ class _FarmDashboardPageState extends State<FarmDashboardPage> {
     if (farm != null && mounted) {
       final created = await controller.createFarmApi(farm);
       if (!mounted) return;
-      if (!created) {
+      if (created == null) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(appText('Failed to create farm. Please try again.')),
@@ -179,7 +179,7 @@ class _FarmDashboardPageState extends State<FarmDashboardPage> {
         );
         return;
       }
-      controller.addFarm(farm);
+      controller.addFarm(created);
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(appText('Farm created successfully.')),
@@ -192,6 +192,16 @@ class _FarmDashboardPageState extends State<FarmDashboardPage> {
   }
 
   Future<void> _openCreatePond() async {
+    if (controller.farms.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(appText('Create a farm before adding a pond.')),
+          behavior: SnackBarBehavior.floating,
+        ),
+      );
+      return;
+    }
+
     final pond = await showDialog<Pond>(
       context: context,
       barrierDismissible: false,
@@ -201,9 +211,19 @@ class _FarmDashboardPageState extends State<FarmDashboardPage> {
       ),
     );
     if (pond != null && mounted) {
-      await controller.createPondApi(pond);
+      final created = await controller.createPondApi(pond);
       if (!mounted) return;
-      controller.addPond(pond);
+      if (created == null) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(appText('Failed to create pond. Please try again.')),
+            backgroundColor: const Color(0xFFFFE1E1),
+            behavior: SnackBarBehavior.floating,
+          ),
+        );
+        return;
+      }
+      controller.addPond(created);
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(appText('Pond created successfully.')),

@@ -15,6 +15,8 @@ class Pond {
     required this.areaUnit,
     required this.status,
     this.imageName,
+    this.imagePath,
+    this.imageUrl,
   });
 
   final String id;
@@ -24,6 +26,8 @@ class Pond {
   final String areaUnit;
   final String status;
   final String? imageName;
+  final String? imagePath;
+  final String? imageUrl;
 }
 
 class Stocking {
