@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:more_fish/core/localization/app_translations.dart';
 
+import '../../../../core/api/api.dart';
 import '../../../../core/widgets/common_container.dart';
 import '../../../farm/presentation/pages/farm_dashboard_page.dart';
 import '../../../farm/presentation/pages/accounting_dashboard_page.dart';
@@ -20,6 +21,30 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> {
   bool _isLoggedIn = false;
   int _selectedIndex = 0;
+  late final Future<void> _sessionReady;
+
+  @override
+  void initState() {
+    super.initState();
+    _sessionReady = _restoreSession();
+  }
+
+  Future<void> _restoreSession() async {
+    final hasSavedToken = await Api.hasSavedToken();
+    if (mounted) {
+      setState(() => _isLoggedIn = hasSavedToken);
+    }
+  }
+
+  Future<void> _logout() async {
+    await Api.logout();
+    if (mounted) {
+      setState(() {
+        _isLoggedIn = false;
+        _selectedIndex = 0;
+      });
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -40,7 +65,7 @@ class _HomePageState extends State<HomePage> {
               ),
             )
           : _selectedIndex == 3
-          ? _MorePage(onLogout: () => setState(() => _isLoggedIn = false))
+          ? _MorePage(onLogout: _logout)
           : Center(
               child: Text(
                 [
@@ -88,6 +113,8 @@ class _HomePageState extends State<HomePage> {
   }
 
   Future<void> _openFeature(WidgetBuilder destinationBuilder) async {
+    await _sessionReady;
+    if (!mounted) return;
     if (!_isLoggedIn) {
       final loggedIn = await showDialog<bool>(
         context: context,
@@ -108,7 +135,7 @@ class _HomePageState extends State<HomePage> {
 class _MorePage extends StatelessWidget {
   const _MorePage({required this.onLogout});
 
-  final VoidCallback onLogout;
+  final Future<void> Function() onLogout;
 
   @override
   Widget build(BuildContext context) {
@@ -194,10 +221,26 @@ class _MorePage extends StatelessWidget {
       ),
     );
     if (confirmed != true || !context.mounted) return;
-    onLogout();
+    try {
+      await onLogout();
+    } on StateError catch (error) {
+      _showLogoutError(context, error);
+      return;
+    } on Exception catch (error) {
+      _showLogoutError(context, error);
+      return;
+    }
+    if (!context.mounted) return;
     ScaffoldMessenger.of(
       context,
     ).showSnackBar(SnackBar(content: Text('Logged out successfully'.tr)));
+  }
+
+  void _showLogoutError(BuildContext context, Object error) {
+    if (!context.mounted) return;
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(SnackBar(content: Text('Logout failed: $error')));
   }
 }
 

@@ -42,6 +42,14 @@ class LoginController extends ChangeNotifier {
         return false;
       }
       return true;
+    } on FormatException catch (error) {
+      debugPrint('Login response is invalid: $error');
+      _loginError = 'Login failed. Invalid response from server.';
+      return false;
+    } on StateError catch (error) {
+      debugPrint('Login token could not be saved: $error');
+      _loginError = 'Login failed. Please try again.';
+      return false;
     } on TimeoutException {
       _loginError = 'The login request timed out. Please try again.';
       return false;

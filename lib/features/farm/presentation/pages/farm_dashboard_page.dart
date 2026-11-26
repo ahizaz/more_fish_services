@@ -167,8 +167,18 @@ class _FarmDashboardPageState extends State<FarmDashboardPage> {
       builder: (_) => const CreateFarmDialog(),
     );
     if (farm != null && mounted) {
-      await controller.createFarmApi(farm);
+      final created = await controller.createFarmApi(farm);
       if (!mounted) return;
+      if (!created) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(appText('Failed to create farm. Please try again.')),
+            backgroundColor: const Color(0xFFFFE1E1),
+            behavior: SnackBarBehavior.floating,
+          ),
+        );
+        return;
+      }
       controller.addFarm(farm);
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(

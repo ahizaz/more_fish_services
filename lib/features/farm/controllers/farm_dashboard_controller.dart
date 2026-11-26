@@ -1,5 +1,11 @@
-import 'package:get/get.dart';
+import 'dart:async';
+import 'dart:convert';
 
+import 'package:flutter/foundation.dart';
+import 'package:get/get.dart';
+import 'package:http/http.dart' as http;
+
+import '../../../core/api/api.dart';
 import '../models/farm_models.dart';
 
 class FarmDashboardController extends GetxController {
@@ -135,7 +141,30 @@ class FarmDashboardController extends GetxController {
     // API integration point: load farms, ponds, stockings, and weekly updates.
   }
 
-  Future<bool> createFarmApi(Farm farm) async => true;
+  Future<bool> createFarmApi(Farm farm) async {
+    final requestBody = {'name': farm.name, 'location': farm.location};
+    debugPrint('POST ${Api.farmsUri}');
+    debugPrint('Farm request body: ${jsonEncode(requestBody)}');
+
+    try {
+      final response = await Api.createFarm(
+        name: farm.name,
+        location: farm.location,
+      );
+      debugPrint('Farm API response: ${response.statusCode} ${response.body}');
+      return response.statusCode >= 200 && response.statusCode < 300;
+    } on TimeoutException catch (error) {
+      debugPrint('Farm API request timed out: $error');
+      return false;
+    } on http.ClientException catch (error) {
+      debugPrint('Farm API connection failed: $error');
+      return false;
+    } on StateError catch (error) {
+      debugPrint('Farm API authorization failed: $error');
+      return false;
+    }
+  }
+
   Future<bool> createPondApi(Pond pond) async => true;
   Future<bool> saveStockingApi(Stocking stocking) async => true;
   Future<bool> saveWeeklyUpdateApi(WeeklyUpdate update) async => true;

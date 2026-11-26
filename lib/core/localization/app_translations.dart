@@ -68,6 +68,10 @@ class AppTranslations extends Translations {
       'Enter a valid email or phone': 'সঠিক ইমেইল অথবা ফোন লিখুন',
       'Login failed. Please check your credentials and try again.':
           'লগইন ব্যর্থ হয়েছে। আপনার তথ্য যাচাই করে আবার চেষ্টা করুন।',
+      'Login failed. Invalid response from server.':
+          'লগইন ব্যর্থ হয়েছে। সার্ভার থেকে সঠিক তথ্য পাওয়া যায়নি।',
+      'Login failed. Please try again.':
+          'লগইন ব্যর্থ হয়েছে। আবার চেষ্টা করুন।',
       'The login request timed out. Please try again.':
           'লগইনের সময়সীমা শেষ হয়েছে। আবার চেষ্টা করুন।',
       'Could not connect to the server. Please try again.':
@@ -90,6 +94,8 @@ class AppTranslations extends Translations {
       'Create pond': 'পুকুর তৈরি করুন',
       'Farm Dashboard': 'খামার ড্যাশবোর্ড',
       'Farm created successfully.': 'খামার সফলভাবে তৈরি হয়েছে।',
+      'Failed to create farm. Please try again.':
+          'খামার তৈরি করা যায়নি। আবার চেষ্টা করুন।',
       'Pond created successfully.': 'পুকুর সফলভাবে তৈরি হয়েছে।',
       'FINANCIAL HUB': 'আর্থিক কেন্দ্র',
       'Open Accounting Dashboard': 'হিসাব ড্যাশবোর্ড খুলুন',
